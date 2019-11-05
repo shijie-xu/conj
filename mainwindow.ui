@@ -24,7 +24,7 @@
        <attribute name="title">
         <string>Quiz</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
@@ -79,7 +79,11 @@
            </layout>
           </item>
           <item>
-           <widget class="QListWidget" name="lst_history"/>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QListWidget" name="lst_history"/>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
@@ -146,8 +150,10 @@
     <property name="title">
      <string>File(&amp;F)</string>
     </property>
-    <addaction name="actionSettings_S"/>
+    <addaction name="actionNew_Quiz_N"/>
+    <addaction name="actionFetch_Dictionary_F"/>
     <addaction name="separator"/>
+    <addaction name="actionSettings_S"/>
     <addaction name="actionExit_X"/>
    </widget>
    <widget class="QMenu" name="menuHelp_H">
@@ -173,6 +179,16 @@
   <action name="actionAbout_A">
    <property name="text">
     <string>About(&amp;A)</string>
+   </property>
+  </action>
+  <action name="actionNew_Quiz_N">
+   <property name="text">
+    <string>New Quiz(&amp;N)</string>
+   </property>
+  </action>
+  <action name="actionFetch_Dictionary_F">
+   <property name="text">
+    <string>Fetch Dictionary(&amp;F)</string>
    </property>
   </action>
  </widget>

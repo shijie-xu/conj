@@ -18,6 +18,7 @@
 #include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QByteArray>
 #include <QFile>
 #include <QListView>
@@ -32,10 +33,6 @@
 #include <QtCharts/QLineSeries>
 
 QT_CHARTS_USE_NAMESPACE
-
-
-//#define SLOT(name) "1"#name
-//#define SIGNAL(name) "2"#name
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -68,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->statusbar->addWidget(progress);
     this->lbl_status = new QLabel("French Conjugator v0.1\t");
     ui->statusbar->addWidget(lbl_status);
-    this->lbl_network = new QLabel("Netowk unkown.");
+    this->lbl_network = new QLabel();
     ui->statusbar->addWidget(lbl_network);
 
     // Load words file
@@ -114,6 +111,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->le_input->setFocus();
     ui->le_search->setEnabled(false);
 
+    // Set list history
+    ui->lst_history->setFixedWidth(200);
+
     // Set tab3
     update_tab3();
 
@@ -127,6 +127,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::single_quiz()
 {
+    // Check quiz finished
+    if (passed_cycles == quiz_cycles){
+        if( passed_cycles == right_cycles){
+            current_study++;
+        }
+        this->on_actionNew_Quiz_N_triggered();
+    }
+
     //lbl_status->setText(tr("rand %1").arg(QRandomGenerator::global()->bounded(words_count)));
     int idx = QRandomGenerator::global()->bounded(words_count);
     QString word = words_list.at(idx).toString();
@@ -135,22 +143,51 @@ void MainWindow::single_quiz()
     this->progress->setValue(passed_cycles);
 
     int random_proun = QRandomGenerator::global()->bounded(this->prouns.count());
-    QString tense = "présent";
+    QMap<QString,bool>::iterator it;
+    QList<QString> available_tense;
+    for (it = this->tenses_switch.begin(); it != this->tenses_switch.end(); it++) {
+        if (it.value())
+            available_tense << it.key();
+    }
 
-    ui->lbl_tense->setText(tr("(%1): %2 ").arg(tense).arg(prouns[random_proun]));
+    QString tense;
+    if(available_tense.isEmpty()){
+        tense = "présent";
+    }
+    else{
+        int random_tense = QRandomGenerator::global()->bounded(available_tense.count());
+        tense = available_tense[random_tense].split(":").last();
+    }
+//    qDebug() << tense;
 
-    this->lbl_network->setText("Fetching answer....");
-    ui->le_input->setEnabled(false);
-    QString query = this->conjugator.conj(word);
-    this->lbl_network->setText("Network ready.");
-    ui->le_input->setEnabled(true);
-    ui->le_input->setFocus();
+    ui->lbl_tense->setText(tr("%1/%2\t(%3): %4 ")
+                           .arg(this->passed_cycles).arg(this->quiz_cycles)
+                           .arg(tense).arg(prouns[random_proun]));
 
-    QJsonDocument json_data = QJsonDocument::fromJson(query.toUtf8());
-    //this->quiz_answer = json_data["value"]["moods"]["indicatif"][tense][prouns[random_proun]].toString();
 
-    this->quiz_answer = json_data["value"]["moods"]["indicatif"][tense][random_proun].toString().split(QRegExp("[ \']")).last();
+    // We first fetch answer storaged in local, then in the internet
+    QFile fileDict("dict.txt");
+    fileDict.open(QFile::ReadOnly);
+    QJsonDocument doc = QJsonDocument::fromJson(fileDict.readAll());
+    QVariantMap map = doc.toVariant().toMap();
+    QString data = map.value(word).toString();
 
+//    qDebug() << data;
+    if(!data.isEmpty()){
+        doc = QJsonDocument::fromJson(data.toUtf8());
+    }else {
+        this->lbl_network->setText("Fetching answer....\t");
+        ui->le_input->setEnabled(false);
+        QString query = this->conjugator.conj(word);
+        this->lbl_network->setText("Network ready.");
+        ui->le_input->setEnabled(true);
+        ui->le_input->setFocus();
+
+        doc = QJsonDocument::fromJson(query.toUtf8());
+    }
+    this->quiz_answer = doc["value"]["moods"]["indicatif"][tense][random_proun].toString().split(QRegExp("[ \']")).last();
+
+    qDebug() << this->quiz_answer;
 }
 
 void MainWindow::update_tab3()
@@ -185,6 +222,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings->setValue("pos", QVariant(this->pos()).toPoint());
     settings->setValue("size", QVariant(this->size()).toSize());
     settings->setValue("quiz cycles", QVariant(this->quiz_cycles).toInt());
+    settings->setValue("current study", QVariant(this->current_study).toInt());
 }
 
 
@@ -425,7 +463,8 @@ void MainWindow::on_le_input_returnPressed()
     QString response = ui->le_input->text();
     if (quiz_answer.isEmpty()){
         right_cycles++;
-        lbl_status->setText("Unkown.\t");
+//        lbl_status->setText("Unkown.\t");
+        lbl_status->clear();
     }
     else if (quiz_answer == response){
         right_cycles++;
@@ -451,4 +490,45 @@ void MainWindow::on_lst_history_itemClicked(QListWidgetItem *item)
     ui->tabWidget->setCurrentIndex(1);
     ui->le_search->setText(search_url);
     ui->le_search->setEnabled(false);
+}
+
+void MainWindow::on_actionNew_Quiz_N_triggered()
+{
+    // New quiz
+    this->passed_cycles = 0;
+    this->lbl_status->setText("New quiz begin.\t");
+    this->progress->setValue(passed_cycles);
+
+    ui->lbl_word->clear();
+    ui->lbl_tense->clear();
+    ui->le_input->clear();
+
+    single_quiz();
+}
+
+void MainWindow::on_actionFetch_Dictionary_F_triggered()
+{
+    // Set ui
+    ui->le_input->setEnabled(false);
+
+    QJsonObject obj;
+    this->progress->setRange(0, words_count);
+    for (int i = 0; i < words_list.count(); ++i) {
+        QString word = words_list.at(i).toString();
+        QString data = conjugator.conj(word);
+        obj.insert(word, data);
+
+        this->progress->setValue(i+1);
+        this->lbl_status->setText(tr("Fetch <b>%1....\t").arg(word));
+    }
+    this->progress->setValue(0);
+    this->lbl_status->setText("Fetch data OK.\t");
+
+    QJsonDocument doc(obj);
+    QFile dictFile("dict.txt");
+    dictFile.open(QFile::WriteOnly);
+    dictFile.write(doc.toJson());
+
+    // Recover ui
+    ui->le_input->setEnabled(true);
 }

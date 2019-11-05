@@ -48,6 +48,10 @@ private slots:
 
     void on_lst_history_itemClicked(QListWidgetItem *item);
 
+    void on_actionNew_Quiz_N_triggered();
+
+    void on_actionFetch_Dictionary_F_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -83,9 +87,11 @@ private:
     int current_study;
 
     int words_count;
+
     int quiz_cycles;
     int passed_cycles;
     int right_cycles;
+
     int quiz_rate;
     QString quiz_word;
 
@@ -97,6 +103,7 @@ private:
     int quiz_tense;
 
     Conjugate conjugator;
+    Conjugate fetch_dict;
 
     QList<QString> prouns;
 };
