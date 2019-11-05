@@ -9,8 +9,30 @@
 #include <QCheckBox>
 #include <QPushButton>
 #include <QLabel>
+#include <QLineEdit>
 #include <QSpacerItem>
 #include <QMessageBox>
+#include <QDateTime>
+#include <QSettings>
+#include <QFileDialog>
+#include <QDebug>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QByteArray>
+#include <QFile>
+#include <QListView>
+#include <QTableWidget>
+#include <QRandomGenerator>
+#include <QSpinBox>
+#include <QList>
+#include <QUrl>
+#include <QtCharts/QChartView>
+#include <QtCharts/QPieSeries>
+#include <QtCharts/QPieSlice>
+#include <QtCharts/QLineSeries>
+
+QT_CHARTS_USE_NAMESPACE
+
 
 //#define SLOT(name) "1"#name
 //#define SIGNAL(name) "2"#name
@@ -20,14 +42,149 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->le_input->setText(tr("%1").arg("être"));
 
-    ui->textEdit->setHtml(tr("<font color=\"red\">%1</font>").arg("être"));
+    // Set windows title
+    this->setWindowTitle("French Conjugator v0.1");
 
+    // Set random seed
+    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+
+    // Read settings and set window
+    settings = new QSettings("settings.ini", QSettings::IniFormat);
+    this->move(settings->value("pos").toPoint());
+    this->resize(settings->value("size").toSize());
+    this->words_file_path = settings->value("words file path").toString();
+    this->quiz_cycles = settings->value("quiz cycles").toInt();
+    this->quiz_rate = settings->value("quiz rate").toInt();
+    this->current_study = settings->value("current study").toInt();
+
+    // Set passed cycles
+    passed_cycles = 0;
+
+    // Set status bar
+    this->progress = new QProgressBar();
+    progress->setRange(0, quiz_cycles);
+    ui->statusbar->addWidget(progress);
+    this->lbl_status = new QLabel("French Conjugator v0.1\t");
+    ui->statusbar->addWidget(lbl_status);
+    this->lbl_network = new QLabel("Netowk unkown.");
+    ui->statusbar->addWidget(lbl_network);
+
+    // Load words file
+    QFile src(words_file_path);
+    if(!src.open(QFile::ReadWrite)){
+        QMessageBox::warning(this, "Conj", "Cannot load words file!");
+    }
+    this->words_list = QJsonDocument::fromJson(
+                QString(src.readAll()).toUtf8()).array();
+    words_count = words_list.count();
+
+    // Set proun
+    this->prouns << "je" << "tu" << "il"
+                << "nous" << "vous" << "ils";
+
+    // Init tenses
+    // indicatif_tenses = 'présent', 'passé-composé', 'imparfait', 'plus-que-parfait', 'futur-simple', 'futur-antérieur'
+    // conditionnel_teneses = 'présent', 'passé',
+    // subjonctif_tenses = 'présent', 'passé', 'imparfait', 'plus-que-parfait'
+    QList<QString> tenses = {
+        "indicatif:présent", "indicatif:passé-composé",
+        "indicatif:imparfait", "indicatif:plus-que-parfait",
+        "indicatif:futur-simple", "indicatif:futur-antérieur",
+
+        "conditionnel:présent", "conditionnel:passé",
+
+        "subjonctif:présent","subjonctif:passé",
+        "subjonctif:imparfait","subjonctif:plus-que-parfait"
+    };
+    for (int i = 0; i < tenses.count(); ++i) {
+        QString tense = tenses.at(i);
+        tenses_switch.insert(tense, settings->value(tense).toBool());
+    }
+    // Set conjugator
+    this->conjugator.setup("http://verbe.cc/vcfr/conjugate/fr/");
+    //qDebug()<<this->conjugator.conj("être");
+
+    // Init quiz
+    single_quiz();
+
+    // Set focus
+    ui->le_input->clear();
+    ui->le_input->setFocus();
+    ui->le_search->setEnabled(false);
+
+    // Set tab3
+    update_tab3();
+
+    ui->tabWidget->setCurrentIndex(0);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::single_quiz()
+{
+    //lbl_status->setText(tr("rand %1").arg(QRandomGenerator::global()->bounded(words_count)));
+    int idx = QRandomGenerator::global()->bounded(words_count);
+    QString word = words_list.at(idx).toString();
+    this->quiz_word = word;
+    ui->lbl_word->setText(tr("<b>%1</b>").arg(word));
+    this->progress->setValue(passed_cycles);
+
+    int random_proun = QRandomGenerator::global()->bounded(this->prouns.count());
+    QString tense = "présent";
+
+    ui->lbl_tense->setText(tr("(%1): %2 ").arg(tense).arg(prouns[random_proun]));
+
+    this->lbl_network->setText("Fetching answer....");
+    ui->le_input->setEnabled(false);
+    QString query = this->conjugator.conj(word);
+    this->lbl_network->setText("Network ready.");
+    ui->le_input->setEnabled(true);
+    ui->le_input->setFocus();
+
+    QJsonDocument json_data = QJsonDocument::fromJson(query.toUtf8());
+    //this->quiz_answer = json_data["value"]["moods"]["indicatif"][tense][prouns[random_proun]].toString();
+
+    this->quiz_answer = json_data["value"]["moods"]["indicatif"][tense][random_proun].toString().split(QRegExp("[ \']")).last();
+
+}
+
+void MainWindow::update_tab3()
+{
+    QPieSeries *series = new QPieSeries();
+    series->append("Memoried", this->current_study);
+    series->append("Not study yet", this->words_count - this->current_study);
+
+    QChart *chart = new QChart();
+    chart->addSeries(series);
+    chart->setTitle(tr("<h3>Study: %1 | Not study: %2</h3>").arg(this->current_study).arg(this->words_count-this->current_study));
+    chart->legend()->hide();
+
+    QChartView *chartView_words = new QChartView(chart);
+    chartView_words->setRenderHint(QPainter::Antialiasing);
+
+    QLineSeries *series_history = new QLineSeries();
+    series_history->append(0,1);
+    series_history->append(1,2);
+    QChart *chart_history = new QChart();
+    chart_history->addSeries(series_history);
+    chart_history->setTitle("History");
+    QChartView *chartView_history = new QChartView(chart_history);
+
+    ui->hb_sta->addWidget(chartView_words);
+    ui->hb_sta->addWidget(chartView_history);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    // Set mainwindow position and size
+    settings->setValue("pos", QVariant(this->pos()).toPoint());
+    settings->setValue("size", QVariant(this->size()).toSize());
+    settings->setValue("quiz cycles", QVariant(this->quiz_cycles).toInt());
 }
 
 
@@ -39,46 +196,58 @@ void MainWindow::on_actionSettings_S_triggered()
     setting_dialog->resize(400,300);
     setting_dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-    // Add vertical layout
+    // Add vertical layouts
     QHBoxLayout *hb_ind = new QHBoxLayout();
     QHBoxLayout *hb_cond = new QHBoxLayout();
     QHBoxLayout *hb_sub = new QHBoxLayout();
     QHBoxLayout *hb_ok = new QHBoxLayout();
     QVBoxLayout *vb_total = new QVBoxLayout();
 
-    // Add check box
+    // Add check boxes
     // indicatif_tenses = 'présent', 'passé-composé', 'imparfait', 'plus-que-parfait', 'futur-simple', 'futur-antérieur'
     // conditionnel_teneses = 'présent', 'passé',
     // subjonctif_tenses = 'présent', 'passé', 'imparfait', 'plus-que-parfait'
-    QCheckBox *chk_ind_present = new QCheckBox();
+    chk_ind_present = new QCheckBox();
     chk_ind_present->setText("présent");
-    QCheckBox *chk_ind_passe_compose = new QCheckBox();
+    chk_ind_present->setChecked(tenses_switch["indicatif:présent"]);
+    chk_ind_passe_compose = new QCheckBox();
     chk_ind_passe_compose->setText("passé-composé");
-    QCheckBox *chk_ind_imparfait = new QCheckBox();
+    chk_ind_passe_compose->setChecked(tenses_switch["indicatif:passé-composé"]);
+    chk_ind_imparfait = new QCheckBox();
     chk_ind_imparfait->setText("imparfait");
-    QCheckBox *chk_ind_plus_que_parfait = new QCheckBox();
+    chk_ind_imparfait->setChecked(tenses_switch["indicatif:imparfait"]);
+    chk_ind_plus_que_parfait = new QCheckBox();
     chk_ind_plus_que_parfait->setText("plus-que-parfait");
-    QCheckBox *chk_ind_futur_simple = new QCheckBox();
+    chk_ind_plus_que_parfait->setChecked(tenses_switch["indicatif:plus-que-parfait"]);
+    chk_ind_futur_simple = new QCheckBox();
     chk_ind_futur_simple->setText("futur-simple");
-    QCheckBox *chk_ind_futur_anterieur = new QCheckBox();
+    chk_ind_futur_simple->setChecked(tenses_switch["indicatif:futur-simple"]);
+    chk_ind_futur_anterieur = new QCheckBox();
     chk_ind_futur_anterieur->setText("futur-antérieur");
+    chk_ind_futur_anterieur->setChecked(tenses_switch["indicatif:futur-antérieur"]);
 
-    QCheckBox *chk_cond_present = new QCheckBox();
+    chk_cond_present = new QCheckBox();
     chk_cond_present->setText("présent");
-    QCheckBox *chk_cond_passe = new QCheckBox();
+    chk_cond_present->setChecked(tenses_switch["conditionnel:présent"]);
+    chk_cond_passe = new QCheckBox();
     chk_cond_passe->setText("passé");
+    chk_cond_passe->setChecked(tenses_switch["conditionnel:passé"]);
 
-    QCheckBox *chk_sub_present = new QCheckBox();
+    chk_sub_present = new QCheckBox();
     chk_sub_present->setText("présent");
-    QCheckBox *chk_sub_passe = new QCheckBox();
+    chk_sub_present->setChecked(tenses_switch["subjonctif:présent"]);
+    chk_sub_passe = new QCheckBox();
     chk_sub_passe->setText("passé");
-    QCheckBox *chk_sub_imparfait = new QCheckBox();
+    chk_sub_passe->setChecked(tenses_switch["subjonctif:passé"]);
+    chk_sub_imparfait = new QCheckBox();
     chk_sub_imparfait->setText("imparfait");
-    QCheckBox *chk_sub_plus_que_parfait = new QCheckBox();
+    chk_sub_imparfait->setChecked(tenses_switch["subjonctif:imparfait"]);
+    chk_sub_plus_que_parfait = new QCheckBox();
     chk_sub_plus_que_parfait->setText("plus-que-parfait");
+    chk_sub_plus_que_parfait->setChecked(tenses_switch["subjonctif:plus-que-parfait"]);
 
-    // Add checkbox to layout
-    // Add label to layout
+    // Add checkboxes to layouts
+    // Add labels to layouts
     QLabel *lbl_ind = new QLabel("<b>indicatif</b>");
     QLabel *lbl_cond = new QLabel("<b>conditionnel</b>");
     QLabel *lbl_sub = new QLabel("<b>subjonctif</b>");
@@ -105,24 +274,60 @@ void MainWindow::on_actionSettings_S_triggered()
     hb_sub->addWidget(chk_sub_plus_que_parfait);
     hb_sub->addStretch();
 
-    // Add button
+
+    // Add data path settings
+    QHBoxLayout *hb_data_path = new QHBoxLayout();
+    QLabel *lbl_words_path = new QLabel("Choose words file: ");
+    le_words_path = new QLineEdit();
+    le_words_path->setReadOnly(true);
+    le_words_path->setEnabled(false);
+    le_words_path->setText(words_file_path);
+
+    QPushButton *btn_choose = new QPushButton("Choose");
+    connect(btn_choose, SIGNAL(clicked()), this, SLOT(on_settings_choose_words_file()));
+    hb_data_path->addWidget(lbl_words_path);
+    hb_data_path->addWidget(le_words_path);
+    hb_data_path->addWidget(btn_choose);
+    hb_data_path->addStretch();
+
+    // Add quiz settings
+    QLabel *lbl_quiz = new QLabel("Max quiz cycles: ");
+    spin_quiz_number = new QSpinBox();
+    spin_quiz_number->setMinimum(10);
+    spin_quiz_number->setMaximum(1000);
+    spin_quiz_number->setValue(this->quiz_cycles);
+    QLabel *lbl_quiz_pass_rate = new QLabel("Pass rate: ");
+    spin_quiz_rate = new QSpinBox();
+    spin_quiz_rate->setMinimum(60);
+    spin_quiz_rate->setMaximum(100);
+    spin_quiz_rate->setValue(this->quiz_rate);
+    QHBoxLayout *hb_quiz = new QHBoxLayout();
+    hb_quiz->addWidget(lbl_quiz);
+    hb_quiz->addWidget(spin_quiz_number);
+    hb_quiz->addWidget(lbl_quiz_pass_rate);
+    hb_quiz->addWidget(spin_quiz_rate);
+    hb_quiz->addStretch();
+
+    // Add buttons
     QPushButton *btn_save = new QPushButton();
     btn_save->setText("Save");
-    connect(btn_save,SIGNAL(clicked()), this, SLOT(on_settings_save));
+    connect(btn_save,SIGNAL(clicked()), this, SLOT(on_settings_save()));
     QPushButton *btn_cancel = new QPushButton();
     btn_cancel->setText("Cancel");
     connect(btn_cancel, SIGNAL(clicked()), this, SLOT(on_settings_cancel()));
-
-
     // Add spacer
     hb_ok->addStretch();
     hb_ok->addWidget(btn_save);
     hb_ok->addWidget(btn_cancel);
-    // Add all hbox to vbox
+
+    // Add all hboxes to vbox
     vb_total->addLayout(hb_ind);
     vb_total->addLayout(hb_cond);
     vb_total->addLayout(hb_sub);
+    vb_total->addLayout(hb_data_path);
+    vb_total->addLayout(hb_quiz);
     vb_total->addLayout(hb_ok);
+
     vb_total->addStretch();
 
     setting_dialog->setLayout(vb_total);
@@ -140,19 +345,110 @@ void MainWindow::on_settings_cancel()
     QMessageBox::StandardButton result = QMessageBox::information(
                 setting_dialog, "Settings", "Are your sure to cancel?",
                 QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
-    if (result==QMessageBox::Yes)
+    if (result==QMessageBox::Yes){
+        // Save settings
+
         this->setting_dialog->close();
+    }
 }
 
 void MainWindow::on_settings_save()
 {
+    // update gloabel variables
+    this->quiz_cycles = spin_quiz_number->value();
+    this->quiz_rate = spin_quiz_rate->value();
+
+    // indicatif_tenses = 'présent', 'passé-composé', 'imparfait', 'plus-que-parfait', 'futur-simple', 'futur-antérieur'
+    // conditionnel_teneses = 'présent', 'passé',
+    // subjonctif_tenses = 'présent', 'passé', 'imparfait', 'plus-que-parfait'
+    tenses_switch["indicatif:présent"] = chk_ind_present->isChecked();
+    tenses_switch["indicatif:passé-composé"] = chk_ind_passe_compose->isChecked();
+    tenses_switch["indicatif:imparfait"] = chk_ind_imparfait->isChecked();
+    tenses_switch["indicatif:plus-que-parfait"] = chk_ind_plus_que_parfait->isChecked();
+    tenses_switch["indicatif:futur-simple"] = chk_ind_futur_simple->isChecked();
+    tenses_switch["indicatif:futur-antérieur"] = chk_ind_futur_anterieur->isChecked();
+
+    tenses_switch["conditionnel:présent"] = chk_cond_present->isChecked();
+    tenses_switch["conditionnel:passé"] = chk_cond_passe->isChecked();
+
+    tenses_switch["subjonctif:présent"] = chk_sub_present->isChecked();
+    tenses_switch["subjonctif:passé"] = chk_sub_passe->isChecked();
+    tenses_switch["subjonctif:imparfait"] = chk_sub_imparfait->isChecked();
+    tenses_switch["subjonctif:plus-que-parfait"] = chk_sub_plus_que_parfait->isChecked();
+
+    // Save settings
+    settings->setValue("words file path", QVariant(words_file_path).toString());
+    settings->setValue("quiz cycles", QVariant(quiz_cycles).toInt());
+    settings->setValue("quiz rate", QVariant(quiz_rate).toInt());
+    QMap<QString,bool>::iterator i;
+    for(i=tenses_switch.begin();i!=tenses_switch.end();i++){
+        settings->setValue(i.key(),i.value());
+    }
+
+    setting_dialog->close();
+
+
+    // Show status
+    this->lbl_status->setText("Save settings successfully!\t");
+}
+
+void MainWindow::on_settings_choose_words_file()
+{
+    words_file_path = QFileDialog::getOpenFileName(setting_dialog, "Choose words file",
+                                                     ".");
+    if(!words_file_path.isEmpty() && le_words_path)
+        le_words_path->setText(words_file_path);
+    else if(words_file_path.isEmpty()){
+        //QMessageBox::warning(setting_dialog, "Warning", tr("Invalid file path: %1!").arg(words_file_path), QMessageBox::Ok);
+        lbl_status->setText(tr("<font color=\"red\">Invalid file path</font>\t").arg(words_file_path));
+    }else{
+        QMessageBox::warning(setting_dialog, "Warning", tr("Unkown error!"), QMessageBox::Ok);
+        //qDebug()<<le_words_path<<"\n";
+    }
 }
 
 void MainWindow::on_actionAbout_A_triggered()
 {
     QMessageBox::information(
-                this, "About us",
-                "<b>French Conjugator v1.0</b> aims to help people who suffer from the disgusting verb conjugations in French laguage in a related easy way.<br>"
-                "Allrights reserved © Shi-Jie Xu, see <a href=\"https://github.com/shijie-xu\">my homepage</a> for more details.",
+                this, "About Us",
+                "<b>French Conjugator v1.0</b> aims to help people who suffer from the disgusting verb conjugations in French laguage in a related easy way. "
+                "Allrights reserved © <a href=\"https://github.com/shijie-xu/conj\">Shi-Jie Xu</a>. "
+                "Thanks to <a href=\"http://verbe.cc\">http://verbe.cc</a> for providing verbs conjugation interface.<br>"
+                + tr("Built with Qt %1 on %2.").arg(QT_VERSION_STR).arg(QLocale("en_US").toDate(QString(__DATE__).simplified(), tr("MMM d yyyy")).toString("yyyy-MM-d")),
                 QMessageBox::Yes, QMessageBox::Yes);
+}
+
+void MainWindow::on_le_input_returnPressed()
+{
+    // Check answer
+    passed_cycles++;
+    QString response = ui->le_input->text();
+    if (quiz_answer.isEmpty()){
+        right_cycles++;
+        lbl_status->setText("Unkown.\t");
+    }
+    else if (quiz_answer == response){
+        right_cycles++;
+        lbl_status->setText("<font color=\"green\">Right!\t</font>");
+    }else{
+        lbl_status->setText(tr("Wrong: <font color=\"red\">%1.</font>\t").arg(quiz_answer));
+    }
+    // Update ui
+    this->progress->setValue(passed_cycles);
+    ui->le_input->clear();
+    ui->lst_history->addItem(this->quiz_word);
+
+    // New quiz
+    single_quiz();
+}
+
+
+void MainWindow::on_lst_history_itemClicked(QListWidgetItem *item)
+{
+//    qDebug() << "clicked item " << item->text();
+//    item->setToolTip(item->text());
+    QString search_url = "https://en.wiktionary.org/wiki/"+item->text();
+    ui->tabWidget->setCurrentIndex(1);
+    ui->le_search->setText(search_url);
+    ui->le_search->setEnabled(false);
 }
