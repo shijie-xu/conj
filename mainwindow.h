@@ -96,6 +96,7 @@ private:
     QString quiz_word;
 
     QMap<QString, bool> tenses_switch;
+    QMap<QString, double> word_study;
 
 
     QString quiz_answer;

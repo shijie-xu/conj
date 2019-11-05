@@ -77,6 +77,18 @@ MainWindow::MainWindow(QWidget *parent)
                 QString(src.readAll()).toUtf8()).array();
     words_count = words_list.count();
 
+    // Set words study
+    QFile fileStudy("study.json");
+    fileStudy.open(QFile::ReadOnly);
+    QJsonDocument doc = QJsonDocument::fromJson(fileStudy.readAll());
+    QVariantMap map = doc.toVariant().toMap();
+    QMap<QString, QVariant>::iterator it;
+    for(it = map.begin(); it != map.end(); it++){
+        word_study[it.key()] = it.value().toDouble();
+        qDebug() << it.value();
+    }
+
+
     // Set proun
     this->prouns << "je" << "tu" << "il"
                 << "nous" << "vous" << "ils";
@@ -111,8 +123,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->le_input->setFocus();
     ui->le_search->setEnabled(false);
 
-    // Set list history
+    // Set fixed size
     ui->lst_history->setFixedWidth(200);
+    this->progress->setFixedWidth(300);
 
     // Set tab3
     update_tab3();
@@ -166,7 +179,7 @@ void MainWindow::single_quiz()
 
 
     // We first fetch answer storaged in local, then in the internet
-    QFile fileDict("dict.txt");
+    QFile fileDict("dict.json");
     fileDict.open(QFile::ReadOnly);
     QJsonDocument doc = QJsonDocument::fromJson(fileDict.readAll());
     QVariantMap map = doc.toVariant().toMap();
@@ -223,6 +236,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings->setValue("size", QVariant(this->size()).toSize());
     settings->setValue("quiz cycles", QVariant(this->quiz_cycles).toInt());
     settings->setValue("current study", QVariant(this->current_study).toInt());
+
+    // Save study history
+    QFile fileStudy("study.json");
+    fileStudy.open(QFile::WriteOnly);
+    QJsonObject obj;
+    QMap<QString, double>::iterator it;
+    for(it = word_study.begin(); it != word_study.end(); it++){
+        obj.insert(it.key(), tr("%1").arg(it.value()));
+    }
+    QJsonDocument doc(obj);
+    fileStudy.write(doc.toJson());
 }
 
 
@@ -525,7 +549,7 @@ void MainWindow::on_actionFetch_Dictionary_F_triggered()
     this->lbl_status->setText("Fetch data OK.\t");
 
     QJsonDocument doc(obj);
-    QFile dictFile("dict.txt");
+    QFile dictFile("dict.json");
     dictFile.open(QFile::WriteOnly);
     dictFile.write(doc.toJson());
 
