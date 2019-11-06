@@ -1,4 +1,4 @@
 # Conj
-![](capture/pic1.png)
-![](capture/pic2.png)
-![](capture/pic3.png)
+![](capture/pic1.jpg)
+![](capture/pic2.jpg)
+![](capture/pic3.jpg)
