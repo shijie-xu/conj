@@ -54,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->words_file_path = settings->value("words file path").toString();
     this->quiz_cycles = settings->value("quiz cycles").toInt();
     this->quiz_rate = settings->value("quiz rate").toInt();
+    this->quiz_new_rate = settings->value("quiz new rate").toInt();
     this->current_study = settings->value("current study").toInt();
 
     // Set passed cycles
@@ -145,6 +146,8 @@ void MainWindow::single_quiz()
     //lbl_status->setText(tr("rand %1").arg(QRandomGenerator::global()->bounded(words_count)));
     int idx = QRandomGenerator::global()->bounded(words_count);
     QString word = words_list.at(idx).toString();
+
+
     this->quiz_word = word;
     ui->lbl_word->setText(tr("<b>%1</b>").arg(word));
     this->progress->setValue(passed_cycles);
@@ -260,6 +263,12 @@ QVariantMap MainWindow::variant_read_from_map(QMap<QString, int> map1, QMap<QStr
             vmap[i.key()] = i.value();
     }
     return vmap;
+}
+
+QString MainWindow::take_not_study_word()
+{
+    int idx = QRandomGenerator::global()->bounded(words_count);
+    return words_list[idx].toString();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -394,11 +403,19 @@ void MainWindow::on_actionSettings_S_triggered()
     spin_quiz_rate->setMinimum(60);
     spin_quiz_rate->setMaximum(100);
     spin_quiz_rate->setValue(this->quiz_rate);
+    QLabel *lbl_quiz_new_rate = new QLabel("New word rate: ");
+    spin_quiz_new = new QSpinBox();
+    spin_quiz_new->setMinimum(50);
+    spin_quiz_new->setMaximum(90);
+    spin_quiz_new->setValue(this->quiz_new_rate);
+
     QHBoxLayout *hb_quiz = new QHBoxLayout();
     hb_quiz->addWidget(lbl_quiz);
     hb_quiz->addWidget(spin_quiz_number);
     hb_quiz->addWidget(lbl_quiz_pass_rate);
     hb_quiz->addWidget(spin_quiz_rate);
+    hb_quiz->addWidget(lbl_quiz_new_rate);
+    hb_quiz->addWidget(spin_quiz_new);
     hb_quiz->addStretch();
 
     // Add buttons
@@ -473,6 +490,7 @@ void MainWindow::on_settings_save()
     settings->setValue("words file path", QVariant(words_file_path).toString());
     settings->setValue("quiz cycles", QVariant(quiz_cycles).toInt());
     settings->setValue("quiz rate", QVariant(quiz_rate).toInt());
+    settings->setValue("quiz new rate", QVariant(quiz_new_rate).toInt());
     QMap<QString,bool>::iterator i;
     for(i=tenses_switch.begin();i!=tenses_switch.end();i++){
         settings->setValue(i.key(),i.value());

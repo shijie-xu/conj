@@ -34,6 +34,8 @@ public:
     QMap<QString,double> map_read_from_variant(QVariantMap);
     QVariantMap variant_read_from_map(QMap<QString, int>, QMap<QString, int>);
 
+    QString take_not_study_word();
+
 protected:
     void closeEvent(QCloseEvent *event);
 
@@ -65,6 +67,7 @@ private:
     QLineEdit *le_words_path;
     QSpinBox *spin_quiz_number;
     QSpinBox *spin_quiz_rate;
+    QSpinBox *spin_quiz_new;
 
     QCheckBox *chk_ind_present;
     QCheckBox *chk_ind_passe_compose;
@@ -97,6 +100,7 @@ private:
     int right_cycles;
 
     int quiz_rate;
+    int quiz_new_rate;
     QString quiz_word;
 
     QMap<QString, bool> tenses_switch;
