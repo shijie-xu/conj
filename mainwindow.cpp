@@ -81,13 +81,7 @@ MainWindow::MainWindow(QWidget *parent)
     QFile fileStudy("study.json");
     fileStudy.open(QFile::ReadOnly);
     QJsonDocument doc = QJsonDocument::fromJson(fileStudy.readAll());
-    QVariantMap map = doc.toVariant().toMap();
-    QMap<QString, QVariant>::iterator it;
-    for(it = map.begin(); it != map.end(); it++){
-        word_study[it.key()] = it.value().toDouble();
-        qDebug() << it.value();
-    }
-
+    study_history = map_read_from_variant(doc.toVariant().toMap());
 
     // Set proun
     this->prouns << "je" << "tu" << "il"
@@ -124,7 +118,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->le_search->setEnabled(false);
 
     // Set fixed size
-    ui->lst_history->setFixedWidth(200);
+    ui->lst_history->setFixedWidth(300);
     this->progress->setFixedWidth(300);
 
     // Set tab3
@@ -205,13 +199,23 @@ void MainWindow::single_quiz()
 
 void MainWindow::update_tab3()
 {
+    QMap<QString,double>::iterator it;
+    int right = 0, wrong = 0, remains;
+    for(it = study_history.begin(); it != study_history.end(); it++){
+        if (it.value() < .99) right++;
+        else wrong++;
+    }
+    remains = this->words_count - right - wrong;
+
     QPieSeries *series = new QPieSeries();
-    series->append("Memoried", this->current_study);
-    series->append("Not study yet", this->words_count - this->current_study);
+    series->append(tr("Memoried %1").arg(right), right);
+    series->append(tr("Studied %1").arg(wrong), wrong);
+    series->append(tr("Not studied yet %1").arg(remains), remains);
+    series->setLabelsVisible();
 
     QChart *chart = new QChart();
     chart->addSeries(series);
-    chart->setTitle(tr("<h3>Study: %1 | Not study: %2</h3>").arg(this->current_study).arg(this->words_count-this->current_study));
+    chart->setTitle(tr("<h3>Study Progress</h3>"));
     chart->legend()->hide();
 
     QChartView *chartView_words = new QChartView(chart);
@@ -229,6 +233,35 @@ void MainWindow::update_tab3()
     ui->hb_sta->addWidget(chartView_history);
 }
 
+QMap<QString, double> MainWindow::map_read_from_variant(QVariantMap vmap)
+{
+    QMap<QString, double> map;
+    QVariantMap::iterator it;
+    for (it = vmap.begin(); it!=vmap.end(); it++) {
+        map[it.key()] = it.value().toInt();
+        qDebug()<<it.key() <<it.value().toDouble();
+    }
+    return map;
+}
+
+QVariantMap MainWindow::variant_read_from_map(QMap<QString, int> map1, QMap<QString, int> map2)
+{
+    QVariantMap vmap;
+    QMap<QString,int>::iterator it;
+    for(it = map1.begin(); it != map1.end(); it++){
+        int right = it.value();
+        int wrong = map2[it.key()];
+        vmap[it.key()] = QVariant(right/((double)(wrong+right)));
+//        qDebug() << it.key() << right << wrong;
+    }
+    QMap<QString,double>::iterator i;
+    for(i=this->study_history.begin();i!=this->study_history.end();i++){
+        if (!vmap.contains(i.key()))
+            vmap[i.key()] = i.value();
+    }
+    return vmap;
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Set mainwindow position and size
@@ -240,11 +273,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     // Save study history
     QFile fileStudy("study.json");
     fileStudy.open(QFile::WriteOnly);
-    QJsonObject obj;
-    QMap<QString, double>::iterator it;
-    for(it = word_study.begin(); it != word_study.end(); it++){
-        obj.insert(it.key(), tr("%1").arg(it.value()));
-    }
+    QVariantMap vmap = variant_read_from_map(right_study, wrong_study);
+    QJsonObject obj = QJsonObject::fromVariantMap(vmap);
+    qDebug() << vmap.keys() << vmap.values()[0].toDouble();
     QJsonDocument doc(obj);
     fileStudy.write(doc.toJson());
 }
@@ -482,24 +513,38 @@ void MainWindow::on_actionAbout_A_triggered()
 
 void MainWindow::on_le_input_returnPressed()
 {
+    // DEBUG
+    qDebug() << this->right_study << this->wrong_study << this->study_history;
     // Check answer
     passed_cycles++;
     QString response = ui->le_input->text();
     if (quiz_answer.isEmpty()){
         right_cycles++;
-//        lbl_status->setText("Unkown.\t");
+//        lbl_status->setText("Unkown word.\t");
         lbl_status->clear();
+        if(this->right_study.contains((this->quiz_word)))
+            this->right_study[this->quiz_word]++;
+        else
+            this->right_study[this->quiz_word] = 1;
     }
     else if (quiz_answer == response){
         right_cycles++;
         lbl_status->setText("<font color=\"green\">Right!\t</font>");
+        if (this->right_study.contains(this->quiz_word))
+            this->right_study[this->quiz_word]++;
+        else
+            this->right_study[this->quiz_word] = 1;
     }else{
         lbl_status->setText(tr("Wrong: <font color=\"red\">%1.</font>\t").arg(quiz_answer));
+        if(this->wrong_study.contains(this->quiz_word))
+            this->wrong_study[this->quiz_word]++;
+        else
+            this->wrong_study[this->quiz_word] = 1;
     }
     // Update ui
     this->progress->setValue(passed_cycles);
     ui->le_input->clear();
-    ui->lst_history->addItem(this->quiz_word);
+    ui->lst_history->addItem(this->quiz_word + tr("\t\t%1%").arg(this->study_history[this->quiz_word]*100.0));
 
     // New quiz
     single_quiz();

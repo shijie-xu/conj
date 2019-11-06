@@ -14,6 +14,7 @@
 #include <QMap>
 #include <QCheckBox>
 #include <QListWidgetItem>
+#include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,6 +30,9 @@ public:
 
     void single_quiz();
     void update_tab3();
+
+    QMap<QString,double> map_read_from_variant(QVariantMap);
+    QVariantMap variant_read_from_map(QMap<QString, int>, QMap<QString, int>);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -96,7 +100,9 @@ private:
     QString quiz_word;
 
     QMap<QString, bool> tenses_switch;
-    QMap<QString, double> word_study;
+    QMap<QString, double> study_history;
+    QMap<QString, int> right_study;
+    QMap<QString, int> wrong_study;
 
 
     QString quiz_answer;
