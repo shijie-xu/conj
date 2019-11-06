@@ -116,6 +116,9 @@
             </item>
            </layout>
           </item>
+          <item>
+           <widget class="QTextBrowser" name="tb_wiki"/>
+          </item>
          </layout>
         </item>
        </layout>

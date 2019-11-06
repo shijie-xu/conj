@@ -139,8 +139,9 @@ MainWindow::~MainWindow()
 void MainWindow::single_quiz()
 {
     // Check quiz finished
+    //qDebug() << passed_cycles << quiz_cycles;
     if (passed_cycles == quiz_cycles){
-        if( passed_cycles == right_cycles){
+        if( quiz_cycles == right_cycles){
             current_study++;
             this->lbl_network->setText(tr("You have passed quiz %1").arg(this->current_study));
         }
@@ -149,7 +150,7 @@ void MainWindow::single_quiz()
         fileStudy.open(QFile::WriteOnly);
         QVariantMap vmap = variant_read_from_map(right_study, wrong_study);
         QJsonObject obj = QJsonObject::fromVariantMap(vmap);
-        if(!vmap.isEmpty()) qDebug() << vmap.keys() << vmap.values()[0].toDouble();
+        //if(!vmap.isEmpty()) qDebug() << vmap.keys() << vmap.values()[0].toDouble();
         QJsonDocument doc(obj);
         fileStudy.write(doc.toJson());
 
@@ -219,7 +220,7 @@ void MainWindow::update_tab3()
     QMap<QString,double>::iterator it;
     int right = 0, wrong = 0, remains;
     for(it = study_history.begin(); it != study_history.end(); it++){
-        qDebug() << it.value();
+        //qDebug() << it.value();
         if (it.value() > .99) right++;
         else wrong++;
     }
@@ -286,11 +287,11 @@ QString MainWindow::take_a_word()
     int ch = QRandomGenerator::global()->bounded(100);
     if(!current_study)current_study=1;
     if(ch>this->quiz_new_rate){// Old word
-        qDebug() << "Old word";
+        //qDebug() << "Old word";
         idx = QRandomGenerator::global()->bounded(current_study);
     }else{
         // New word
-        qDebug() << "New word at " << current_study;
+        //qDebug() << "New word at " << current_study;
         idx = current_study;
     }
     return this->words_list[idx].toString();
@@ -549,7 +550,7 @@ void MainWindow::on_actionAbout_A_triggered()
     QMessageBox::information(
                 this, "About Us",
                 "<b>French Conjugator v1.0</b> aims to help people who suffer from the disgusting verb conjugations in French laguage in a related easy way. "
-                "Allrights reserved © <a href=\"https://github.com/shijie-xu/conj/releases/download/v0.2/French.Conjugator.v0.2.zip\">Shi-Jie Xu</a>. "
+                "Allrights reserved © <a href=\"https://github.com/shijie-xu/conj/releases\">Shi-Jie Xu</a>. "
                 "Thanks to <a href=\"http://verbe.cc\">http://verbe.cc</a> for providing verbs conjugation interface.<br>"
                 + tr("Built with Qt %1 on %2.").arg(QT_VERSION_STR).arg(QLocale("en_US").toDate(QString(__DATE__).simplified(), tr("MMM d yyyy")).toString("yyyy-MM-d")),
                 QMessageBox::Yes, QMessageBox::Yes);
@@ -586,6 +587,7 @@ void MainWindow::on_le_input_returnPressed()
             this->wrong_study[this->quiz_word] = 1;
     }
     // Update ui
+    this->progress->setRange(0, this->quiz_cycles);
     this->progress->setValue(passed_cycles);
     ui->le_input->clear();
     ui->lst_history->insertItem(0, this->quiz_word + tr("\t%1%").arg(this->study_history[this->quiz_word]*100.0));
@@ -600,11 +602,20 @@ void MainWindow::on_lst_history_itemClicked(QListWidgetItem *item)
 {
 //    qDebug() << "clicked item " << item->text();
 //    item->setToolTip(item->text());
-    QString search_url = "https://en.wiktionary.org/wiki/"+item->text().split("\t").first();
+    QString search_url = "http://en.wiktionary.org/wiki/"+item->text().split("\t").first();
     ui->tabWidget->setCurrentIndex(1);
     ui->le_search->setText(search_url);
     ui->le_search->setEnabled(false);
    // ui->verticalLayout_4->addWidget()
+    Conjugate *wiki = new Conjugate();
+    wiki->setup("http://en.wiktionary.org/wiki/");
+
+    QString verb = item->text().split("\t").first();
+    QString content = wiki->conj(verb);
+    if (content.isEmpty())
+        ui->tb_wiki->setHtml(tr("<html><head></head><body><h1>Connection faild: %1</h1></body></html>").arg(content));
+    else
+        ui->tb_wiki->setHtml(wiki->conj(verb));
 }
 
 void MainWindow::on_actionNew_Quiz_N_triggered()
