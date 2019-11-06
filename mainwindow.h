@@ -34,7 +34,7 @@ public:
     QMap<QString,double> map_read_from_variant(QVariantMap);
     QVariantMap variant_read_from_map(QMap<QString, int>, QMap<QString, int>);
 
-    QString take_not_study_word();
+    QString take_a_word();
 
 protected:
     void closeEvent(QCloseEvent *event);

@@ -80,9 +80,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Set words study
     QFile fileStudy("study.json");
-    fileStudy.open(QFile::ReadOnly);
-    QJsonDocument doc = QJsonDocument::fromJson(fileStudy.readAll());
-    study_history = map_read_from_variant(doc.toVariant().toMap());
+    if(fileStudy.open(QFile::ReadOnly)){
+        QJsonDocument doc = QJsonDocument::fromJson(fileStudy.readAll());
+        study_history = map_read_from_variant(doc.toVariant().toMap());
+    }else{
+        QMessageBox::warning(this, "Conj", "Study history not existed.");
+    }
 
     // Set proun
     this->prouns << "je" << "tu" << "il"
@@ -111,7 +114,7 @@ MainWindow::MainWindow(QWidget *parent)
     //qDebug()<<this->conjugator.conj("être");
 
     // Init quiz
-    single_quiz();
+    on_actionNew_Quiz_N_triggered();
 
     // Set focus
     ui->le_input->clear();
@@ -119,7 +122,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->le_search->setEnabled(false);
 
     // Set fixed size
-    ui->lst_history->setFixedWidth(300);
+    ui->lst_history->setFixedWidth(200);
     this->progress->setFixedWidth(300);
 
     // Set tab3
@@ -139,17 +142,28 @@ void MainWindow::single_quiz()
     if (passed_cycles == quiz_cycles){
         if( passed_cycles == right_cycles){
             current_study++;
+            this->lbl_network->setText(tr("You have passed quiz %1").arg(this->current_study));
+        }
+        // Save study history
+        QFile fileStudy("study.json");
+        fileStudy.open(QFile::WriteOnly);
+        QVariantMap vmap = variant_read_from_map(right_study, wrong_study);
+        QJsonObject obj = QJsonObject::fromVariantMap(vmap);
+        if(!vmap.isEmpty()) qDebug() << vmap.keys() << vmap.values()[0].toDouble();
+        QJsonDocument doc(obj);
+        fileStudy.write(doc.toJson());
+
+        for(QMap<QString,int>::iterator it = right_study.begin(); it != right_study.end(); it++){
+            right_study[it.key()] = 0;
+            wrong_study[it.key()] = 0;
         }
         this->on_actionNew_Quiz_N_triggered();
     }
 
     //lbl_status->setText(tr("rand %1").arg(QRandomGenerator::global()->bounded(words_count)));
-    int idx = QRandomGenerator::global()->bounded(words_count);
-    QString word = words_list.at(idx).toString();
 
-
-    this->quiz_word = word;
-    ui->lbl_word->setText(tr("<b>%1</b>").arg(word));
+    this->quiz_word = take_a_word();
+    ui->lbl_word->setText(tr("<b>%1</b>").arg(this->quiz_word));
     this->progress->setValue(passed_cycles);
 
     int random_proun = QRandomGenerator::global()->bounded(this->prouns.count());
@@ -180,7 +194,7 @@ void MainWindow::single_quiz()
     fileDict.open(QFile::ReadOnly);
     QJsonDocument doc = QJsonDocument::fromJson(fileDict.readAll());
     QVariantMap map = doc.toVariant().toMap();
-    QString data = map.value(word).toString();
+    QString data = map.value(this->quiz_word).toString();
 
 //    qDebug() << data;
     if(!data.isEmpty()){
@@ -188,7 +202,7 @@ void MainWindow::single_quiz()
     }else {
         this->lbl_network->setText("Fetching answer....\t");
         ui->le_input->setEnabled(false);
-        QString query = this->conjugator.conj(word);
+        QString query = this->conjugator.conj(this->quiz_word);
         this->lbl_network->setText("Network ready.");
         ui->le_input->setEnabled(true);
         ui->le_input->setFocus();
@@ -197,7 +211,7 @@ void MainWindow::single_quiz()
     }
     this->quiz_answer = doc["value"]["moods"]["indicatif"][tense][random_proun].toString().split(QRegExp("[ \']")).last();
 
-    qDebug() << this->quiz_answer;
+    //qDebug() << this->quiz_answer;
 }
 
 void MainWindow::update_tab3()
@@ -205,35 +219,36 @@ void MainWindow::update_tab3()
     QMap<QString,double>::iterator it;
     int right = 0, wrong = 0, remains;
     for(it = study_history.begin(); it != study_history.end(); it++){
-        if (it.value() < .99) right++;
+        qDebug() << it.value();
+        if (it.value() > .99) right++;
         else wrong++;
     }
     remains = this->words_count - right - wrong;
 
     QPieSeries *series = new QPieSeries();
-    series->append(tr("Memoried %1").arg(right), right);
+    series->append(tr("Remerbered %1").arg(right), right);
     series->append(tr("Studied %1").arg(wrong), wrong);
-    series->append(tr("Not studied yet %1").arg(remains), remains);
+    series->append(tr("Remains %1").arg(remains), remains);
     series->setLabelsVisible();
 
     QChart *chart = new QChart();
     chart->addSeries(series);
     chart->setTitle(tr("<h3>Study Progress</h3>"));
-    chart->legend()->hide();
+    //chart->legend()->hide();
 
     QChartView *chartView_words = new QChartView(chart);
     chartView_words->setRenderHint(QPainter::Antialiasing);
 
-    QLineSeries *series_history = new QLineSeries();
-    series_history->append(0,1);
-    series_history->append(1,2);
-    QChart *chart_history = new QChart();
-    chart_history->addSeries(series_history);
-    chart_history->setTitle("History");
-    QChartView *chartView_history = new QChartView(chart_history);
+//    QLineSeries *series_history = new QLineSeries();
+//    series_history->append(0,1);
+//    series_history->append(1,2);
+//    QChart *chart_history = new QChart();
+//    chart_history->addSeries(series_history);
+//    chart_history->setTitle("<h3>Calender</h3>");
+//    QChartView *chartView_history = new QChartView(chart_history);
 
     ui->hb_sta->addWidget(chartView_words);
-    ui->hb_sta->addWidget(chartView_history);
+//    ui->hb_sta->addWidget(chartView_history);
 }
 
 QMap<QString, double> MainWindow::map_read_from_variant(QVariantMap vmap)
@@ -241,8 +256,8 @@ QMap<QString, double> MainWindow::map_read_from_variant(QVariantMap vmap)
     QMap<QString, double> map;
     QVariantMap::iterator it;
     for (it = vmap.begin(); it!=vmap.end(); it++) {
-        map[it.key()] = it.value().toInt();
-        qDebug()<<it.key() <<it.value().toDouble();
+        map[it.key()] = it.value().toDouble();
+        //qDebug()<<it.key() <<it.value().toDouble();
     }
     return map;
 }
@@ -260,15 +275,25 @@ QVariantMap MainWindow::variant_read_from_map(QMap<QString, int> map1, QMap<QStr
     QMap<QString,double>::iterator i;
     for(i=this->study_history.begin();i!=this->study_history.end();i++){
         if (!vmap.contains(i.key()))
-            vmap[i.key()] = i.value();
+            vmap[i.key()] = QVariant(i.value());
     }
     return vmap;
 }
 
-QString MainWindow::take_not_study_word()
+QString MainWindow::take_a_word()
 {
-    int idx = QRandomGenerator::global()->bounded(words_count);
-    return words_list[idx].toString();
+    int idx;
+    int ch = QRandomGenerator::global()->bounded(100);
+    if(!current_study)current_study=1;
+    if(ch>this->quiz_new_rate){// Old word
+        qDebug() << "Old word";
+        idx = QRandomGenerator::global()->bounded(current_study);
+    }else{
+        // New word
+        qDebug() << "New word at " << current_study;
+        idx = current_study;
+    }
+    return this->words_list[idx].toString();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -280,13 +305,13 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings->setValue("current study", QVariant(this->current_study).toInt());
 
     // Save study history
-    QFile fileStudy("study.json");
-    fileStudy.open(QFile::WriteOnly);
-    QVariantMap vmap = variant_read_from_map(right_study, wrong_study);
-    QJsonObject obj = QJsonObject::fromVariantMap(vmap);
-    qDebug() << vmap.keys() << vmap.values()[0].toDouble();
-    QJsonDocument doc(obj);
-    fileStudy.write(doc.toJson());
+//    QFile fileStudy("study.json");
+//    fileStudy.open(QFile::WriteOnly);
+//    QVariantMap vmap = variant_read_from_map(right_study, wrong_study);
+//    QJsonObject obj = QJsonObject::fromVariantMap(vmap);
+//    if(!vmap.isEmpty()) qDebug() << vmap.keys() << vmap.values()[0].toDouble();
+//    QJsonDocument doc(obj);
+//    fileStudy.write(doc.toJson());
 }
 
 
@@ -467,6 +492,7 @@ void MainWindow::on_settings_save()
     // update gloabel variables
     this->quiz_cycles = spin_quiz_number->value();
     this->quiz_rate = spin_quiz_rate->value();
+    this->quiz_new_rate = spin_quiz_new->value();
 
     // indicatif_tenses = 'présent', 'passé-composé', 'imparfait', 'plus-que-parfait', 'futur-simple', 'futur-antérieur'
     // conditionnel_teneses = 'présent', 'passé',
@@ -523,7 +549,7 @@ void MainWindow::on_actionAbout_A_triggered()
     QMessageBox::information(
                 this, "About Us",
                 "<b>French Conjugator v1.0</b> aims to help people who suffer from the disgusting verb conjugations in French laguage in a related easy way. "
-                "Allrights reserved © <a href=\"https://github.com/shijie-xu/conj\">Shi-Jie Xu</a>. "
+                "Allrights reserved © <a href=\"https://github.com/shijie-xu/conj/releases/download/v0.2/French.Conjugator.v0.2.zip\">Shi-Jie Xu</a>. "
                 "Thanks to <a href=\"http://verbe.cc\">http://verbe.cc</a> for providing verbs conjugation interface.<br>"
                 + tr("Built with Qt %1 on %2.").arg(QT_VERSION_STR).arg(QLocale("en_US").toDate(QString(__DATE__).simplified(), tr("MMM d yyyy")).toString("yyyy-MM-d")),
                 QMessageBox::Yes, QMessageBox::Yes);
@@ -532,7 +558,7 @@ void MainWindow::on_actionAbout_A_triggered()
 void MainWindow::on_le_input_returnPressed()
 {
     // DEBUG
-    qDebug() << this->right_study << this->wrong_study << this->study_history;
+    //qDebug() << this->right_study << this->wrong_study << this->study_history;
     // Check answer
     passed_cycles++;
     QString response = ui->le_input->text();
@@ -562,7 +588,8 @@ void MainWindow::on_le_input_returnPressed()
     // Update ui
     this->progress->setValue(passed_cycles);
     ui->le_input->clear();
-    ui->lst_history->addItem(this->quiz_word + tr("\t\t%1%").arg(this->study_history[this->quiz_word]*100.0));
+    ui->lst_history->insertItem(0, this->quiz_word + tr("\t%1%").arg(this->study_history[this->quiz_word]*100.0));
+//    ui->lst_history->setCurrentRow(ui->lst_history->count());
 
     // New quiz
     single_quiz();
@@ -573,17 +600,21 @@ void MainWindow::on_lst_history_itemClicked(QListWidgetItem *item)
 {
 //    qDebug() << "clicked item " << item->text();
 //    item->setToolTip(item->text());
-    QString search_url = "https://en.wiktionary.org/wiki/"+item->text();
+    QString search_url = "https://en.wiktionary.org/wiki/"+item->text().split("\t").first();
     ui->tabWidget->setCurrentIndex(1);
     ui->le_search->setText(search_url);
     ui->le_search->setEnabled(false);
+   // ui->verticalLayout_4->addWidget()
 }
 
 void MainWindow::on_actionNew_Quiz_N_triggered()
 {
     // New quiz
     this->passed_cycles = 0;
-    this->lbl_status->setText("New quiz begin.\t");
+//    this->right_study.empty();
+//    this->wrong_study.empty();
+
+    this->lbl_status->setText("New quiz begins.\t");
     this->progress->setValue(passed_cycles);
 
     ui->lbl_word->clear();
@@ -606,10 +637,10 @@ void MainWindow::on_actionFetch_Dictionary_F_triggered()
         obj.insert(word, data);
 
         this->progress->setValue(i+1);
-        this->lbl_status->setText(tr("Fetch <b>%1....\t").arg(word));
+        this->lbl_status->setText(tr("Fetching <b>%1....\t").arg(word));
     }
     this->progress->setValue(0);
-    this->lbl_status->setText("Fetch data OK.\t");
+    this->lbl_status->setText("Data Fetched.\t");
 
     QJsonDocument doc(obj);
     QFile dictFile("dict.json");

@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -53,8 +53,8 @@
                  <font>
                   <family>Cascadia Code</family>
                   <pointsize>12</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
+                  <weight>50</weight>
+                  <bold>false</bold>
                  </font>
                 </property>
                 <property name="text">
@@ -68,8 +68,8 @@
                  <font>
                   <family>Cascadia Code</family>
                   <pointsize>12</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
+                  <weight>50</weight>
+                  <bold>false</bold>
                  </font>
                 </property>
                </widget>
@@ -115,9 +115,6 @@
              <widget class="QLineEdit" name="le_search"/>
             </item>
            </layout>
-          </item>
-          <item>
-           <widget class="QWidget" name="wdg_browser" native="true"/>
           </item>
          </layout>
         </item>
