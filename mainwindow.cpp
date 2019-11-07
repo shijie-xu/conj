@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Set passed cycles
     passed_cycles = 0;
+    right_cycles = 0;
 
     // Set status bar
     this->progress = new QProgressBar();
@@ -145,6 +146,8 @@ void MainWindow::single_quiz()
             current_study++;
             this->lbl_network->setText(tr("You have passed quiz %1").arg(this->current_study));
         }
+        qDebug() << this->quiz_cycles << right_cycles;
+
         // Save study history
         QFile fileStudy("study.json");
         fileStudy.open(QFile::WriteOnly);
@@ -234,7 +237,7 @@ void MainWindow::update_tab3()
 
     QChart *chart = new QChart();
     chart->addSeries(series);
-    chart->setTitle(tr("<h3>Study Progress</h3>"));
+    chart->setTitle(tr("<h3>Study Progress (Last Time)</h3>"));
     //chart->legend()->hide();
 
     QChartView *chartView_words = new QChartView(chart);
@@ -469,6 +472,7 @@ void MainWindow::on_actionSettings_S_triggered()
     setting_dialog->setLayout(vb_total);
 
     setting_dialog->show();
+    btn_save->setFocus();
 }
 
 void MainWindow::on_actionExit_X_triggered()
@@ -593,7 +597,7 @@ void MainWindow::on_le_input_returnPressed()
     ui->lst_history->insertItem(0, this->quiz_word + tr("\t%1%").arg(this->study_history[this->quiz_word]*100.0));
 //    ui->lst_history->setCurrentRow(ui->lst_history->count());
 
-    // New quiz
+    // New quiz cycle
     single_quiz();
 }
 
