@@ -35,6 +35,7 @@ public:
     QVariantMap variant_read_from_map(QMap<QString, int>, QMap<QString, int>);
 
     QString take_a_word();
+    QString take_proun(QString proun, QString verb, QString tense);
 
 protected:
     void closeEvent(QCloseEvent *event);

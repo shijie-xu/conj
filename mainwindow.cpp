@@ -78,6 +78,11 @@ MainWindow::MainWindow(QWidget *parent)
     this->words_list = QJsonDocument::fromJson(
                 QString(src.readAll()).toUtf8()).array();
     words_count = words_list.count();
+    // NOTICE: Unccessary komma is NOT permitde!
+    // You must write word json file like this:
+    // ["word1", "word2", ..., "wordn"]
+
+    //qDebug() << words_file_path << words_list << words_count;
 
     // Set words study
     QFile fileStudy("study.json");
@@ -148,7 +153,7 @@ void MainWindow::single_quiz()
         }
         qDebug() << this->quiz_cycles << right_cycles;
 
-        // Save study history
+        // Save study history & update study_history
         QFile fileStudy("study.json");
         fileStudy.open(QFile::WriteOnly);
         QVariantMap vmap = variant_read_from_map(right_study, wrong_study);
@@ -158,6 +163,10 @@ void MainWindow::single_quiz()
         fileStudy.write(doc.toJson());
 
         for(QMap<QString,int>::iterator it = right_study.begin(); it != right_study.end(); it++){
+            // Update study_history
+            if (right_study[it.key()]+wrong_study[it.key()])
+                study_history[it.key()] = (double)right_study[it.key()]/((double)right_study[it.key()]+(double)wrong_study[it.key()]);
+            // Clear right and wrong table
             right_study[it.key()] = 0;
             wrong_study[it.key()] = 0;
         }
@@ -188,9 +197,11 @@ void MainWindow::single_quiz()
     }
 //    qDebug() << tense;
 
+    QString pr = prouns[random_proun];
+    QString pro = take_proun(pr,quiz_word,tense);
     ui->lbl_tense->setText(tr("%1/%2\t(%3): %4 ")
                            .arg(this->passed_cycles).arg(this->quiz_cycles)
-                           .arg(tense).arg(prouns[random_proun]));
+                           .arg(tense).arg(pro));
 
 
     // We first fetch answer storaged in local, then in the internet
@@ -298,6 +309,32 @@ QString MainWindow::take_a_word()
         idx = current_study;
     }
     return this->words_list[idx].toString();
+}
+
+QString MainWindow::take_proun(QString proun, QString verb, QString tense)
+{
+    qDebug() << proun << verb << tense;
+
+    // indicatif_tenses = 'présent', 'passé-composé', 'imparfait', 'plus-que-parfait', 'futur-simple', 'futur-antérieur'
+    // conditionnel_teneses = 'présent', 'passé',
+    // subjonctif_tenses = 'présent', 'passé', 'imparfait', 'plus-que-parfait'
+    QString yuan_yin = QString("aeiouéèêâî");
+    if (tense=="présent"){
+        if (yuan_yin.contains(verb.at(0))){
+            if( proun == "je")return "j'";
+        }
+        return proun;
+    }
+
+    if (tense == "passé-composé"){
+        if (proun == "je")return "j'ai";
+        else if(proun== "tu") return "tu as";
+        else if(proun=="il") return "il a";
+        else if(proun=="nous")return "nous avons";
+        else if(proun=="vous")return  "vous avez";
+        else return "ils ont";
+    }
+    return proun;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -610,6 +647,10 @@ void MainWindow::on_lst_history_itemClicked(QListWidgetItem *item)
     ui->tabWidget->setCurrentIndex(1);
     ui->le_search->setText(search_url);
     ui->le_search->setEnabled(false);
+
+    QMessageBox::information(this, "Wikitionary",
+                             tr("The author just HATE MSVC kit, and no QtWebView module can be compile with Windows.<br> Click <a href=\"%1\">%2</a>").arg(search_url).arg(search_url));
+   // this->lbl_network->setText(tr("<a href=\"%1\">%2</a>").arg(search_url).arg(search_url));
    // ui->verticalLayout_4->addWidget()
     Conjugate *wiki = new Conjugate();
     wiki->setup("http://en.wiktionary.org/wiki/");
@@ -626,6 +667,7 @@ void MainWindow::on_actionNew_Quiz_N_triggered()
 {
     // New quiz
     this->passed_cycles = 0;
+    this->right_cycles = 0;
 //    this->right_study.empty();
 //    this->wrong_study.empty();
 
