@@ -15,6 +15,8 @@
 #include <QCheckBox>
 #include <QListWidgetItem>
 #include <QVariantMap>
+#include <QTextToSpeech>
+#include <QVoice>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -35,7 +37,6 @@ public:
     QVariantMap variant_read_from_map(QMap<QString, int>, QMap<QString, int>);
 
     QString take_a_word();
-    QString take_proun(QString proun, QString verb, QString tense);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -58,6 +59,10 @@ private slots:
     void on_actionNew_Quiz_N_triggered();
 
     void on_actionFetch_Dictionary_F_triggered();
+
+    void on_btn_play_word_clicked();
+
+    void on_btn_play_sent_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -84,6 +89,8 @@ private:
     QCheckBox *chk_sub_passe;
     QCheckBox *chk_sub_imparfait;
     QCheckBox *chk_sub_plus_que_parfait;
+
+    QTextToSpeech *speech;
 
 
     QProgressBar *progress;
@@ -113,6 +120,7 @@ private:
     QString quiz_answer;
     int quiz_proun;
     int quiz_tense;
+    QString pro;
 
     Conjugate conjugator;
     Conjugate fetch_dict;

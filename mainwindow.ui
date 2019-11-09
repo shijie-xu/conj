@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>384</width>
-    <height>177</height>
+    <width>488</width>
+    <height>209</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -28,62 +28,76 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
+           <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
-             <widget class="QLabel" name="lbl_word">
-              <property name="font">
-               <font>
-                <family>Cascadia Code</family>
-                <pointsize>18</pointsize>
-               </font>
-              </property>
+             <widget class="QPushButton" name="btn_play_word">
               <property name="text">
-               <string>TextLabel</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
+               <string>Play</string>
               </property>
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout">
+             <layout class="QVBoxLayout" name="verticalLayout_2">
               <item>
-               <widget class="QLabel" name="lbl_tense">
+               <widget class="QLabel" name="lbl_word">
                 <property name="font">
                  <font>
                   <family>Cascadia Code</family>
-                  <pointsize>12</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
+                  <pointsize>18</pointsize>
                  </font>
                 </property>
                 <property name="text">
-                 <string>(présent): </string>
+                 <string>TextLabel</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="le_input">
-                <property name="font">
-                 <font>
-                  <family>Cascadia Code</family>
-                  <pointsize>12</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-               </widget>
+               <layout class="QHBoxLayout" name="horizontalLayout">
+                <item>
+                 <widget class="QLabel" name="lbl_tense">
+                  <property name="font">
+                   <font>
+                    <family>Cascadia Code</family>
+                    <pointsize>12</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>(présent): </string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="le_input">
+                  <property name="font">
+                   <font>
+                    <family>Cascadia Code</family>
+                    <pointsize>12</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btn_play_sent">
+                  <property name="text">
+                   <string>play</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
              </layout>
             </item>
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
-            <item>
-             <widget class="QListWidget" name="lst_history"/>
-            </item>
-           </layout>
+           <widget class="QListWidget" name="lst_history"/>
           </item>
          </layout>
         </item>
@@ -142,7 +156,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>384</width>
+     <width>488</width>
      <height>17</height>
     </rect>
    </property>

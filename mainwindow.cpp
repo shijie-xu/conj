@@ -31,6 +31,8 @@
 #include <QtCharts/QPieSeries>
 #include <QtCharts/QPieSlice>
 #include <QtCharts/QLineSeries>
+#include <QtTextToSpeech>
+#include <QLocale>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -69,6 +71,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->statusbar->addWidget(lbl_status);
     this->lbl_network = new QLabel();
     ui->statusbar->addWidget(lbl_network);
+
+    // Set tts
+    this->speech = new QTextToSpeech();
+    this->speech->setLocale(QLocale::French);
 
     // Load words file
     QFile src(words_file_path);
@@ -151,7 +157,7 @@ void MainWindow::single_quiz()
             current_study++;
             this->lbl_network->setText(tr("You have passed quiz %1").arg(this->current_study));
         }
-        qDebug() << this->quiz_cycles << right_cycles;
+        //qDebug() << this->quiz_cycles << right_cycles;
 
         // Save study history & update study_history
         QFile fileStudy("study.json");
@@ -195,13 +201,7 @@ void MainWindow::single_quiz()
         int random_tense = QRandomGenerator::global()->bounded(available_tense.count());
         tense = available_tense[random_tense].split(":").last();
     }
-//    qDebug() << tense;
 
-    QString pr = prouns[random_proun];
-    QString pro = take_proun(pr,quiz_word,tense);
-    ui->lbl_tense->setText(tr("%1/%2\t(%3): %4 ")
-                           .arg(this->passed_cycles).arg(this->quiz_cycles)
-                           .arg(tense).arg(pro));
 
 
     // We first fetch answer storaged in local, then in the internet
@@ -224,9 +224,22 @@ void MainWindow::single_quiz()
 
         doc = QJsonDocument::fromJson(query.toUtf8());
     }
-    this->quiz_answer = doc["value"]["moods"]["indicatif"][tense][random_proun].toString().split(QRegExp("[ \']")).last();
+    QString full_proun = doc["value"]["moods"]["indicatif"][tense][random_proun].toString();
+    this->quiz_answer = full_proun.split(QRegExp("[ \']")).last();
 
     //qDebug() << this->quiz_answer;
+    //    qDebug() << tense;
+
+    //QString pr = prouns[random_proun];
+    //QString pro = take_proun(pr,quiz_word,tense);
+    this->pro = full_proun.left(full_proun.length()-this->quiz_answer.length());
+    ui->lbl_tense->setText(tr("%1/%2\t(%3): %4 ")
+                           .arg(this->passed_cycles).arg(this->quiz_cycles)
+                           .arg(tense).arg(pro));
+
+    //qDebug() << speech->availableLocales();
+    //this->speech->setVoice(QVoice::)
+    this->speech->say(this->quiz_word);
 }
 
 void MainWindow::update_tab3()
@@ -309,32 +322,6 @@ QString MainWindow::take_a_word()
         idx = current_study;
     }
     return this->words_list[idx].toString();
-}
-
-QString MainWindow::take_proun(QString proun, QString verb, QString tense)
-{
-    qDebug() << proun << verb << tense;
-
-    // indicatif_tenses = 'présent', 'passé-composé', 'imparfait', 'plus-que-parfait', 'futur-simple', 'futur-antérieur'
-    // conditionnel_teneses = 'présent', 'passé',
-    // subjonctif_tenses = 'présent', 'passé', 'imparfait', 'plus-que-parfait'
-    QString yuan_yin = QString("aeiouéèêâî");
-    if (tense=="présent"){
-        if (yuan_yin.contains(verb.at(0))){
-            if( proun == "je")return "j'";
-        }
-        return proun;
-    }
-
-    if (tense == "passé-composé"){
-        if (proun == "je")return "j'ai";
-        else if(proun== "tu") return "tu as";
-        else if(proun=="il") return "il a";
-        else if(proun=="nous")return "nous avons";
-        else if(proun=="vous")return  "vous avez";
-        else return "ils ont";
-    }
-    return proun;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -706,4 +693,14 @@ void MainWindow::on_actionFetch_Dictionary_F_triggered()
 
     // Recover ui
     ui->le_input->setEnabled(true);
+}
+
+void MainWindow::on_btn_play_word_clicked()
+{
+    speech->say(this->quiz_word);
+}
+
+void MainWindow::on_btn_play_sent_clicked()
+{
+    speech->say(this->pro+" "+this->quiz_answer);
 }

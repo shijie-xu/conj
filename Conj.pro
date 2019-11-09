@@ -1,4 +1,4 @@
-QT       += core gui charts network
+QT       += core gui charts network texttospeech
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
