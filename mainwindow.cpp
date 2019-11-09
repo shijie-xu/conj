@@ -131,7 +131,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Set focus
     ui->le_input->clear();
     ui->le_input->setFocus();
-    ui->le_search->setEnabled(false);
+    //ui->le_search->setEnabled(false);
 
     // Set fixed size
     ui->lst_history->setFixedWidth(200);
@@ -150,6 +150,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::single_quiz()
 {
+    // Finished study
+    if ( this->current_study == this->words_count){
+        ui->lbl_word->setText(tr("<img src=\"win.jpg\" height=\"200\" bgcolor=\"white\"/><br><font color=\"green\">Cong! You have passed all quizzes.</font>"));
+        ui->le_input->setEnabled(false);
+        return;
+    }
+
     // Check quiz finished
     //qDebug() << passed_cycles << quiz_cycles;
     if (passed_cycles == quiz_cycles){
@@ -458,7 +465,7 @@ void MainWindow::on_actionSettings_S_triggered()
     spin_quiz_rate->setValue(this->quiz_rate);
     QLabel *lbl_quiz_new_rate = new QLabel("New word rate: ");
     spin_quiz_new = new QSpinBox();
-    spin_quiz_new->setMinimum(50);
+    spin_quiz_new->setMinimum(10);
     spin_quiz_new->setMaximum(90);
     spin_quiz_new->setValue(this->quiz_new_rate);
 
@@ -475,6 +482,7 @@ void MainWindow::on_actionSettings_S_triggered()
     QPushButton *btn_save = new QPushButton();
     btn_save->setText("Save");
     connect(btn_save,SIGNAL(clicked()), this, SLOT(on_settings_save()));
+    btn_save->setDefault(true);
     QPushButton *btn_cancel = new QPushButton();
     btn_cancel->setText("Cancel");
     connect(btn_cancel, SIGNAL(clicked()), this, SLOT(on_settings_cancel()));
@@ -519,6 +527,7 @@ void MainWindow::on_settings_cancel()
 void MainWindow::on_settings_save()
 {
     // update gloabel variables
+    this->current_study = 0;
     this->quiz_cycles = spin_quiz_number->value();
     this->quiz_rate = spin_quiz_rate->value();
     this->quiz_new_rate = spin_quiz_new->value();
@@ -620,7 +629,6 @@ void MainWindow::on_le_input_returnPressed()
     ui->le_input->clear();
     ui->lst_history->insertItem(0, this->quiz_word + tr("\t%1%").arg(this->study_history[this->quiz_word]*100.0));
 //    ui->lst_history->setCurrentRow(ui->lst_history->count());
-
     // New quiz cycle
     single_quiz();
 }
@@ -631,23 +639,23 @@ void MainWindow::on_lst_history_itemClicked(QListWidgetItem *item)
 //    qDebug() << "clicked item " << item->text();
 //    item->setToolTip(item->text());
     QString search_url = "http://en.wiktionary.org/wiki/"+item->text().split("\t").first();
-    ui->tabWidget->setCurrentIndex(1);
-    ui->le_search->setText(search_url);
-    ui->le_search->setEnabled(false);
+    //ui->tabWidget->setCurrentIndex(1);
+    //ui->le_search->setText(search_url);
+    //ui->le_search->setEnabled(false);
 
     QMessageBox::information(this, "Wikitionary",
-                             tr("The author just HATE MSVC kit, and no QtWebView module can be compile with Windows.<br> Click <a href=\"%1\">%2</a>").arg(search_url).arg(search_url));
+                             tr("The author just HATE MSVC kit and no QtWebView module can be compiled with on Windows.<br>Please click <a href=\"%1\">%2</a>").arg(search_url).arg(search_url));
    // this->lbl_network->setText(tr("<a href=\"%1\">%2</a>").arg(search_url).arg(search_url));
    // ui->verticalLayout_4->addWidget()
-    Conjugate *wiki = new Conjugate();
-    wiki->setup("http://en.wiktionary.org/wiki/");
+//    Conjugate *wiki = new Conjugate();
+//    wiki->setup("http://en.wiktionary.org/wiki/");
 
-    QString verb = item->text().split("\t").first();
-    QString content = wiki->conj(verb);
-    if (content.isEmpty())
-        ui->tb_wiki->setHtml(tr("<html><head></head><body><h1>Connection faild: %1</h1></body></html>").arg(content));
-    else
-        ui->tb_wiki->setHtml(wiki->conj(verb));
+//    QString verb = item->text().split("\t").first();
+//    QString content = wiki->conj(verb);
+//    if (content.isEmpty())
+//        ui->tb_wiki->setHtml(tr("<html><head></head><body><h1>Connection faild: %1</h1></body></html>").arg(content));
+//    else
+//        ui->tb_wiki->setHtml(wiki->conj(verb));
 }
 
 void MainWindow::on_actionNew_Quiz_N_triggered()
@@ -697,6 +705,7 @@ void MainWindow::on_actionFetch_Dictionary_F_triggered()
 
 void MainWindow::on_btn_play_word_clicked()
 {
+    qDebug() << this->quiz_word;
     speech->say(this->quiz_word);
 }
 
