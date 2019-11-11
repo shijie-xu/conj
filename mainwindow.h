@@ -77,10 +77,18 @@ private:
     QSpinBox *spin_quiz_rate;
     QSpinBox *spin_quiz_new;
 
+    // indicatif_tenses = 'présent', 'passé-composé', 'imparfait', 'plus-que-parfait',
+    // 'passé-simple', 'passé-antérieur', 'futur-simple', 'futur-antérieur'
+    // conditionnel_teneses = 'présent', 'passé',
+    // subjonctif_tenses = 'présent', 'passé', 'imparfait', 'plus-que-parfait'
+    // imperatif_tenses = 'présent', 'passé',
+    // participe_tenses = 'présent', 'passé',
     QCheckBox *chk_ind_present;
     QCheckBox *chk_ind_passe_compose;
     QCheckBox *chk_ind_imparfait;
     QCheckBox *chk_ind_plus_que_parfait;
+    QCheckBox *chk_ind_passe_simple;
+    QCheckBox *chk_ind_passe_anterieur;
     QCheckBox *chk_ind_futur_simple;
     QCheckBox *chk_ind_futur_anterieur;
 
@@ -91,6 +99,12 @@ private:
     QCheckBox *chk_sub_passe;
     QCheckBox *chk_sub_imparfait;
     QCheckBox *chk_sub_plus_que_parfait;
+
+    QCheckBox *chk_imp_present;
+    QCheckBox *chk_imp_passe;
+
+    QCheckBox *chk_par_present;
+    QCheckBox *chk_par_passe;
 
     QTextToSpeech *speech;
 
