@@ -49,7 +49,9 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle("French Conjugator v0.1");
 
     // Set random seed
-    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+    // Since QRandomGenerator use facilities provide by OS,
+    // no need produces for seed here.
+    //qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
 
     // Read settings and set window
     settings = new QSettings("settings.ini", QSettings::IniFormat);
@@ -60,6 +62,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->quiz_rate = settings->value("quiz rate").toInt();
     this->quiz_new_rate = settings->value("quiz new rate").toInt();
     this->current_study = settings->value("current study").toInt();
+
+    this->bshow = true;
 
     // Set passed cycles
     passed_cycles = 0;
@@ -82,6 +86,8 @@ MainWindow::MainWindow(QWidget *parent)
     // F5 for play word
     QShortcut *sc_play = new QShortcut(QKeySequence("F5"), this);
     connect(sc_play, SIGNAL(activated()), this, SLOT(on_btn_play_word_clicked()));
+    QShortcut *sc_hide = new QShortcut(QKeySequence("F9"), this);
+    connect(sc_hide, SIGNAL(activated()), this, SLOT(on_hide_window()));
 
     // Load words file
     QFile src(words_file_path);
@@ -157,10 +163,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::single_quiz()
 {
-    // Finished study
-    if ( this->current_study == this->words_count){
-        ui->lbl_word->setText(tr("<img src=\"win.jpg\" height=\"200\" /><br><font color=\"green\">Cong! You have passed all quizzes.</font>"));
+    //qDebug () << this->current_study << this->words_count;
+    if (this->current_study >= this->words_count) {
         ui->le_input->setEnabled(false);
+        //ui->le_input->setText("No new quiz.");
+        ui->lbl_word->setText("No new quiz.");
         return;
     }
 
@@ -171,6 +178,8 @@ void MainWindow::single_quiz()
         if ( 100*right_cycles / (double) quiz_cycles >= this->quiz_rate){
             current_study++;
             this->lbl_network->setText(tr("You have passed quiz %1").arg(this->current_study));
+        }else{
+            this->lbl_network->clear();
         }
         //qDebug() << this->quiz_cycles << right_cycles;
 
@@ -191,6 +200,13 @@ void MainWindow::single_quiz()
             right_study[it.key()] = 0;
             wrong_study[it.key()] = 0;
         }
+        // Finished study
+        if ( this->current_study >= this->words_count){
+            ui->lbl_word->setText(tr("<img src=\"win.jpg\" height=\"200\" /><br><font color=\"green\">Cong! You have passed all quizzes.</font>"));
+            ui->le_input->setEnabled(false);
+            return;
+        }
+
         this->on_actionNew_Quiz_N_triggered();
     }
 
@@ -272,8 +288,8 @@ void MainWindow::update_tab3()
 
     QPieSeries *series = new QPieSeries();
     series->append(tr("Remerbered %1").arg(right), right);
-    series->append(tr("Studied %1").arg(wrong), wrong);
-    series->append(tr("Remains %1").arg(remains), remains);
+    series->append(tr("Studying %1").arg(wrong), wrong);
+    series->append(tr("Remaining %1").arg(remains), remains);
     series->setLabelsVisible();
 
     QChart *chart = new QChart();
@@ -602,7 +618,7 @@ void MainWindow::on_settings_choose_words_file()
 
 void MainWindow::on_settings_reset()
 {
-    qDebug() << this->current_study;
+    //qDebug() << this->current_study;
     this->current_study = 0;
 }
 
@@ -735,4 +751,11 @@ void MainWindow::on_btn_play_word_clicked()
         speech->say(this->quiz_word);
     else
         speech->say(this->pro+" "+this->quiz_answer);
+}
+
+void MainWindow::on_hide_window()
+{
+    if (this->bshow){
+        this->setWindowState(Qt::WindowMinimized);
+    }
 }

@@ -51,6 +51,7 @@ private slots:
     void on_settings_choose_words_file();
     void on_settings_reset();
 
+
     void on_actionAbout_A_triggered();
 
     void on_le_input_returnPressed();
@@ -62,6 +63,8 @@ private slots:
     void on_actionFetch_Dictionary_F_triggered();
 
     void on_btn_play_word_clicked();
+
+    void on_hide_window();
 
 private:
     Ui::MainWindow *ui;
@@ -125,6 +128,7 @@ private:
     Conjugate fetch_dict;
 
     QList<QString> prouns;
+    bool bshow;
 };
 
 #endif // MAINWINDOW_H
