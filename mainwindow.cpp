@@ -161,7 +161,7 @@ void MainWindow::single_quiz()
     //qDebug() << passed_cycles << quiz_cycles;
     if (passed_cycles == quiz_cycles){
         //if( quiz_cycles == right_cycles){
-        if ( quiz_cycles / (double) right_cycles >= this->quiz_rate){
+        if ( 100*quiz_cycles / (double) right_cycles >= this->quiz_rate){
             current_study++;
             this->lbl_network->setText(tr("You have passed quiz %1").arg(this->current_study));
         }
@@ -383,6 +383,8 @@ void MainWindow::on_actionSettings_S_triggered()
     chk_ind_plus_que_parfait = new QCheckBox();
     chk_ind_plus_que_parfait->setText("plus-que-parfait");
     chk_ind_plus_que_parfait->setChecked(tenses_switch["indicatif:plus-que-parfait"]);
+
+
     chk_ind_futur_simple = new QCheckBox();
     chk_ind_futur_simple->setText("futur-simple");
     chk_ind_futur_simple->setChecked(tenses_switch["indicatif:futur-simple"]);
@@ -449,10 +451,16 @@ void MainWindow::on_actionSettings_S_triggered()
 
     QPushButton *btn_choose = new QPushButton("Choose");
     connect(btn_choose, SIGNAL(clicked()), this, SLOT(on_settings_choose_words_file()));
+    QPushButton *btn_reset = new QPushButton("Reset Studying Progress");
+    connect(btn_reset, SIGNAL(clicked()), this, SLOT(on_settings_reset()));
+
     hb_data_path->addWidget(lbl_words_path);
     hb_data_path->addWidget(le_words_path);
     hb_data_path->addWidget(btn_choose);
+    hb_data_path->addWidget(btn_reset);
     hb_data_path->addStretch();
+
+
 
     // Add quiz settings
     QLabel *lbl_quiz = new QLabel("Max quiz cycles: ");
@@ -584,13 +592,20 @@ void MainWindow::on_settings_choose_words_file()
     }
 }
 
+void MainWindow::on_settings_reset()
+{
+    qDebug() << this->current_study;
+    this->current_study = 0;
+}
+
 void MainWindow::on_actionAbout_A_triggered()
 {
     QMessageBox::information(
-                this, "About Us",
+                this, "About us",
                 "<b>French Conjugator v1.0</b> aims to help people who suffer from the disgusting verb conjugations in French laguage in a related easy way. "
                 "Allrights reserved © <a href=\"https://github.com/shijie-xu/conj/releases\">Shi-Jie Xu</a>. "
-                "Thanks to <a href=\"http://verbe.cc\">http://verbe.cc</a> for providing verbs conjugation interface.<br>"
+                "Thanks to <a href=\"http://verbe.cc\">http://verbe.cc</a> for providing verbs conjugation interface, and to <a href=\"https://en.wiktionary.org/wiki/Category:French_irregular_verbs\">Wikitionary</a> for providing irregular verbs list. "
+                "See more details <a href=\"https://en.wiktionary.org/wiki/Appendix:French_irregular_verbs\">here.</a><br>"
                 + tr("Built with Qt %1 on %2.").arg(QT_VERSION_STR).arg(QLocale("en_US").toDate(QString(__DATE__).simplified(), tr("MMM d yyyy")).toString("yyyy-MM-d")),
                 QMessageBox::Yes, QMessageBox::Yes);
 }

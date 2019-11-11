@@ -49,6 +49,7 @@ private slots:
     void on_settings_cancel();
     void on_settings_save();
     void on_settings_choose_words_file();
+    void on_settings_reset();
 
     void on_actionAbout_A_triggered();
 
