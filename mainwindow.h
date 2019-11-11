@@ -62,8 +62,6 @@ private slots:
 
     void on_btn_play_word_clicked();
 
-    void on_btn_play_sent_clicked();
-
 private:
     Ui::MainWindow *ui;
 

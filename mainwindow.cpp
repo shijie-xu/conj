@@ -152,7 +152,7 @@ void MainWindow::single_quiz()
 {
     // Finished study
     if ( this->current_study == this->words_count){
-        ui->lbl_word->setText(tr("<img src=\"win.jpg\" height=\"200\" bgcolor=\"white\"/><br><font color=\"green\">Cong! You have passed all quizzes.</font>"));
+        ui->lbl_word->setText(tr("<img src=\"win.jpg\" height=\"200\" /><br><font color=\"green\">Cong! You have passed all quizzes.</font>"));
         ui->le_input->setEnabled(false);
         return;
     }
@@ -160,7 +160,8 @@ void MainWindow::single_quiz()
     // Check quiz finished
     //qDebug() << passed_cycles << quiz_cycles;
     if (passed_cycles == quiz_cycles){
-        if( quiz_cycles == right_cycles){
+        //if( quiz_cycles == right_cycles){
+        if ( quiz_cycles / (double) right_cycles >= this->quiz_rate){
             current_study++;
             this->lbl_network->setText(tr("You have passed quiz %1").arg(this->current_study));
         }
@@ -246,7 +247,8 @@ void MainWindow::single_quiz()
 
     //qDebug() << speech->availableLocales();
     //this->speech->setVoice(QVoice::)
-    this->speech->say(this->quiz_word);
+    //this->speech->say(this->quiz_word);
+    on_btn_play_word_clicked();
 }
 
 void MainWindow::update_tab3()
@@ -705,11 +707,9 @@ void MainWindow::on_actionFetch_Dictionary_F_triggered()
 
 void MainWindow::on_btn_play_word_clicked()
 {
-    qDebug() << this->quiz_word;
-    speech->say(this->quiz_word);
-}
-
-void MainWindow::on_btn_play_sent_clicked()
-{
-    speech->say(this->pro+" "+this->quiz_answer);
+    //qDebug() << this->quiz_word;
+    if(ui->chk_word->isChecked())
+        speech->say(this->quiz_word);
+    else
+        speech->say(this->pro+" "+this->quiz_answer);
 }
