@@ -33,6 +33,8 @@
 #include <QtCharts/QLineSeries>
 #include <QtTextToSpeech>
 #include <QLocale>
+#include <QShortcut>
+#include <QKeySequence>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -75,6 +77,11 @@ MainWindow::MainWindow(QWidget *parent)
     // Set tts
     this->speech = new QTextToSpeech();
     this->speech->setLocale(QLocale::French);
+
+    // Set shortcuts
+    // F5 for play word
+    QShortcut *sc_play = new QShortcut(QKeySequence("F5"), this);
+    connect(sc_play, SIGNAL(activated()), this, SLOT(on_btn_play_word_clicked()));
 
     // Load words file
     QFile src(words_file_path);
@@ -161,7 +168,7 @@ void MainWindow::single_quiz()
     //qDebug() << passed_cycles << quiz_cycles;
     if (passed_cycles == quiz_cycles){
         //if( quiz_cycles == right_cycles){
-        if ( 100*quiz_cycles / (double) right_cycles >= this->quiz_rate){
+        if ( 100*right_cycles / (double) quiz_cycles >= this->quiz_rate){
             current_study++;
             this->lbl_network->setText(tr("You have passed quiz %1").arg(this->current_study));
         }
@@ -241,7 +248,8 @@ void MainWindow::single_quiz()
     //QString pr = prouns[random_proun];
     //QString pro = take_proun(pr,quiz_word,tense);
     this->pro = full_proun.left(full_proun.length()-this->quiz_answer.length());
-    ui->lbl_tense->setText(tr("%1/%2\t(%3): %4 ")
+    ui->lbl_tense->setText(tr("<font color=\"#0000ff\">%1</font>/%2/%3\t(%4): %5")
+                           .arg(this->right_cycles)
                            .arg(this->passed_cycles).arg(this->quiz_cycles)
                            .arg(tense).arg(pro));
 

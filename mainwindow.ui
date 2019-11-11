@@ -178,6 +178,16 @@
     <string>Fetch Dictionary(&amp;F)</string>
    </property>
   </action>
+  <action name="actionPlay_word_W">
+   <property name="text">
+    <string>Play word(&amp;W)</string>
+   </property>
+  </action>
+  <action name="actionPlay_sentence_S">
+   <property name="text">
+    <string>Play sentence(&amp;S)</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
