@@ -38,6 +38,8 @@ public:
 
     QString take_a_word();
 
+    void single_pronom_quiz();
+
 protected:
     void closeEvent(QCloseEvent *event);
 
@@ -65,6 +67,8 @@ private slots:
     void on_btn_play_word_clicked();
 
     void on_hide_window();
+
+    void on_le_pronom_returnPressed();
 
 private:
     Ui::MainWindow *ui;
@@ -137,6 +141,8 @@ private:
     int quiz_proun;
     int quiz_tense;
     QString pro;
+
+    QString pronom_answer;
 
     Conjugate conjugator;
     Conjugate fetch_dict;

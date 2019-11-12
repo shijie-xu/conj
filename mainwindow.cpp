@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->quiz_rate = settings->value("quiz rate").toInt();
     this->quiz_new_rate = settings->value("quiz new rate").toInt();
     this->current_study = settings->value("current study").toInt();
+    ui->tabWidget->setCurrentIndex(settings->value("last tab").toInt());
 
     this->bshow = true;
 
@@ -148,6 +149,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Init quiz
     on_actionNew_Quiz_N_triggered();
+    single_pronom_quiz();
 
     // Set focus
     ui->le_input->clear();
@@ -161,7 +163,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Set tab3
     update_tab3();
 
-    ui->tabWidget->setCurrentIndex(0);
+    //ui->tabWidget->setCurrentIndex(0);
 }
 
 MainWindow::~MainWindow()
@@ -233,13 +235,15 @@ void MainWindow::single_quiz()
             available_tense << it.key();
     }
 
-    QString tense;
+    QString tense, mood;
     if(available_tense.isEmpty()){
         tense = "présent";
+        mood = "indicatif";
     }
     else{
         int random_tense = QRandomGenerator::global()->bounded(available_tense.count());
         tense = available_tense[random_tense].split(":").last();
+        mood = available_tense[random_tense].split(":").first();
     }
 
 
@@ -264,7 +268,9 @@ void MainWindow::single_quiz()
 
         doc = QJsonDocument::fromJson(query.toUtf8());
     }
-    QString full_proun = doc["value"]["moods"]["indicatif"][tense][random_proun].toString();
+    //qDebug() << tense;
+//    QString full_proun = doc["value"]["moods"]["indicatif"][tense][random_proun].toString();
+    QString full_proun = doc["value"]["moods"][mood][tense][random_proun].toString();
     this->quiz_answer = full_proun.split(QRegExp("[ \']")).last();
 
     //qDebug() << this->quiz_answer;
@@ -272,7 +278,10 @@ void MainWindow::single_quiz()
 
     //QString pr = prouns[random_proun];
     //QString pro = take_proun(pr,quiz_word,tense);
+    //if (ui->chk_avoir->isChecked())
     this->pro = full_proun.left(full_proun.length()-this->quiz_answer.length());
+    //else
+    //    this->pro = full_proun.split(" ").first().split("\'").first();
     QString clr;
     //qDebug () << this->passed_cycles-this->right_cycles << this->quiz_cycles*this->quiz_rate/100.0;
     if (this->passed_cycles-this->right_cycles>this->quiz_cycles*(1-this->quiz_rate/100.0))
@@ -284,7 +293,7 @@ void MainWindow::single_quiz()
                            .arg(this->right_cycles)
                            .arg(this->passed_cycles)
                            .arg(this->quiz_cycles)
-                           .arg(tense).arg(pro));
+                           .arg(mood.left(3)+"."+tense).arg(pro));
 
     //qDebug() << speech->availableLocales();
     //this->speech->setVoice(QVoice::)
@@ -375,6 +384,28 @@ QString MainWindow::take_a_word()
     return this->words_list[idx].toString();
 }
 
+void MainWindow::single_pronom_quiz()
+{
+    QString pos[] = {"subject", "direct object", "indirect object", "reflexive", "emphatic"};
+    QString pronoms[] = {"I", "you(sing)", "he", "she", "we", "you(pl)", "they(m)", "they(f)"};
+    QString pro[] = {
+    "je", "me", "me", "me", "moi",
+    "tu", "te", "te", "te", "toi",
+    "il", "le", "lui", "se", "lui",
+    "elle", "la", "lui", "se", "elle",
+    "nous", "nous", "nous", "nous", "nous",
+    "vous", "vous", "vous", "vous", "vous",
+    "ils", "les", "leur", "se", "eux",
+    "elles", "les", "leur", "se", "elles"};
+    int p = QRandomGenerator::global()->bounded(5);
+    int pr = QRandomGenerator::global()->bounded(8);
+    this->pronom_answer = pro[pr*5+p];
+    //qDebug () << p << pr << this->pronom_answer;
+    ui->lbl_pronom_pos->setText(tr("(%1, %2): ")
+                                .arg(pos[p])
+                                .arg(pronoms[pr]));
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Set mainwindow position and size
@@ -382,6 +413,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings->setValue("size", QVariant(this->size()).toSize());
     settings->setValue("quiz cycles", QVariant(this->quiz_cycles).toInt());
     settings->setValue("current study", QVariant(this->current_study).toInt());
+    settings->setValue("last tab", QVariant(ui->tabWidget->currentIndex()));
 
     // Save study history
 //    QFile fileStudy("study.json");
@@ -826,4 +858,17 @@ void MainWindow::on_hide_window()
     if (this->bshow){
         this->setWindowState(Qt::WindowMinimized);
     }
+}
+
+void MainWindow::on_le_pronom_returnPressed()
+{
+    //qDebug () << ui->le_pronom->text() << this->pronom_answer;
+    if (ui->le_pronom->text() == this->pronom_answer){
+        this->lbl_status->setText("<font color=\"green\">Right!\t</font>");
+    }else{
+        this->lbl_status->setText(tr("Wrong: <font color=\"red\">%1\t</font>")
+                                  .arg(this->pronom_answer));
+    }
+    ui->le_pronom->clear();
+    single_pronom_quiz();
 }
