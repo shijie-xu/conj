@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Since QRandomGenerator use facilities provide by OS,
     // no need produces for seed here.
     //qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+    srand(time(NULL));
 
     // Read settings and set window
     settings = new QSettings("settings.ini", QSettings::IniFormat, this);
@@ -159,10 +160,26 @@ MainWindow::MainWindow(QWidget *parent)
     // Set fixed size
     ui->lst_history->setFixedWidth(200);
     this->progress->setFixedWidth(300);
+    ui->lst_words->setFixedWidth(200);
+    ui->btn_ok->setFixedSize(100,60);
+    ui->btn_play->setFixedSize(100,60);
 
     // Set tab3
     update_tab3();
 
+    // Set tab4
+    //ui->te_sentence->setEnabled(false);
+    // File must be saved in `UTF-8 with BOM` format
+    QFile sourceTxt("src.txt");
+    sourceTxt.open(QIODevice::ReadOnly);
+    QTextStream tsSource(&sourceTxt);
+    QString content = tsSource.readAll();
+    QRegExp rx("\\.|\\?|\\n|\\…|\\:|\\;|\\,|\\!|\\*|\\—");
+    this->sent_list = content.split(rx);
+    new_sentence_complete_quiz();
+
+//    int k = QRandomGenerator::global()->bounded(this->sent_list.count());
+//    ui->te_sentence->setText(this->sent_list.at(k));
     //ui->tabWidget->setCurrentIndex(0);
 }
 
@@ -387,7 +404,7 @@ QString MainWindow::take_a_word()
 void MainWindow::single_pronom_quiz()
 {
     QString pos[] = {"subject", "direct object", "indirect object", "reflexive", "emphatic"};
-    QString pronoms[] = {"I", "you(sing)", "he", "she", "we", "you(pl)", "they(m)", "they(f)"};
+    QString pronoms[] = {"je", "tu", "il", "elle", "nous", "vous", "ils", "elles"};
     QString pro[] = {
     "je", "me", "me", "me", "moi",
     "tu", "te", "te", "te", "toi",
@@ -863,6 +880,7 @@ void MainWindow::on_hide_window()
 void MainWindow::on_le_pronom_returnPressed()
 {
     //qDebug () << ui->le_pronom->text() << this->pronom_answer;
+    this->speech->say(this->pronom_answer);
     if (ui->le_pronom->text() == this->pronom_answer){
         this->lbl_status->setText("<font color=\"green\">Right!\t</font>");
     }else{
@@ -871,4 +889,68 @@ void MainWindow::on_le_pronom_returnPressed()
     }
     ui->le_pronom->clear();
     single_pronom_quiz();
+}
+
+void MainWindow::new_sentence_complete_quiz()
+{
+    ui->lst_words->clear();
+    ui->te_sentence->clear();
+    bool succ = false;
+    do{
+        // QRegExp rx("\\.|\\?|\\n|\\…|\\:|\\;|\\,|\\!|\\*|\\—");
+        int k = QRandomGenerator::global()->bounded(this->sent_list.count());
+        this->quiz_sent = this->sent_list.at(k).trimmed();
+        QList<QString> words = this->quiz_sent.split(" ");
+        // Shuffle words seq
+        std::random_shuffle(words.begin(), words.end());
+        // Show words in list view
+        if (words.count()<5 || words.count()>10)continue;
+        qDebug () << words;
+        for (int i = 0; i < words.count(); ++i) {
+            QString w = words.at(i);
+            if (!w.isEmpty()){
+                ui->lst_words->addItem(words.at(i));
+                succ = true;
+            }
+        }
+    }while(!succ);
+}
+
+
+void MainWindow::on_btn_ok_clicked()
+{
+    QString respone = ui->te_sentence->toPlainText();
+    if ( respone.isEmpty()){
+        ui->lbl_origin->setText("<Empty>");
+    }
+    else if (ui->te_sentence->toPlainText().trimmed() == this->quiz_sent){
+        this->lbl_status->setText("<font color=\"green\">OK.\t</font>");
+    }else{
+        int k;
+        for(k=0;k<respone.count();k++){
+            if ( respone.at(k) != this->quiz_sent.at(k))break;
+        }
+        qDebug() << k << respone.count();
+        this->lbl_status->setText("<font color=\"red\">Wrong.\t</font>");
+        ui->lbl_origin->setText(tr("%1<font color=\"red\">%2</font>")
+                                .arg(respone.left(k))
+                                .arg(respone.remove(0,k)));
+        ui->lbl_sent->setText(this->quiz_sent);
+    }
+
+    //this->speech->say(this->quiz_sent);
+    // new quiz
+    new_sentence_complete_quiz();
+}
+
+void MainWindow::on_lst_words_itemClicked(QListWidgetItem *item)
+{
+    QString cur_word = item->text();
+    this->lbl_status->setText(tr("You chose %1.\t").arg(cur_word));
+    ui->te_sentence->insertPlainText(cur_word+" ");
+}
+
+void MainWindow::on_btn_play_clicked()
+{
+    this->speech->say(this->quiz_sent);
 }

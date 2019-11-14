@@ -70,6 +70,14 @@ private slots:
 
     void on_le_pronom_returnPressed();
 
+    void new_sentence_complete_quiz();
+
+    void on_btn_ok_clicked();
+
+    void on_lst_words_itemClicked(QListWidgetItem *item);
+
+    void on_btn_play_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -149,6 +157,9 @@ private:
 
     QList<QString> prouns;
     bool bshow;
+
+    QList<QString> sent_list;
+    QString quiz_sent;
 };
 
 #endif // MAINWINDOW_H
