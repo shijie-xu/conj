@@ -34,7 +34,7 @@
               <item>
                <widget class="QCheckBox" name="chk_word">
                 <property name="text">
-                 <string>word/sentence</string>
+                 <string>read word/sentence</string>
                 </property>
                 <property name="checked">
                  <bool>false</bool>
@@ -166,7 +166,7 @@
       </widget>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
-        <string>complete</string>
+        <string>Complete</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_14">
         <item>
@@ -319,6 +319,22 @@
                     <family>Cascadia Code</family>
                     <pointsize>10</pointsize>
                     <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="lbl_trans">
+                  <property name="font">
+                   <font>
+                    <family>Cascadia Code</family>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <italic>true</italic>
                     <bold>false</bold>
                    </font>
                   </property>

@@ -35,6 +35,7 @@
 #include <QLocale>
 #include <QShortcut>
 #include <QKeySequence>
+#include <QThread>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -79,10 +80,10 @@ MainWindow::MainWindow(QWidget *parent)
     this->progress = new QProgressBar(this);
     progress->setRange(0, quiz_cycles);
     ui->statusbar->addWidget(progress);
-    this->lbl_status = new QLabel("French Conjugator v0.1\t", this);
-    ui->statusbar->addWidget(lbl_status);
     this->lbl_network = new QLabel(this);
     ui->statusbar->addWidget(lbl_network);
+    this->lbl_status = new QLabel("French Conjugator v0.1\t", this);
+    ui->statusbar->addWidget(lbl_status);
 
     // Set tts
     this->speech = new QTextToSpeech(this);
@@ -978,8 +979,24 @@ void MainWindow::new_sentence_complete_quiz()
             }
         }
     }while(!succ);
+    // Translate
+    // Install openssl dll firstly: http://slproweb.com/products/Win32OpenSSL.html
+    // Then create yandex api
+    QString url = tr("https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20191116T145524Z.a006c2b4351496e9.677dfb7949c1d615bf5aab3d2071ddb45ee750f7&text=%1&lang=fr-en").arg(this->quiz_sent);
+    this->lbl_network->setText("Fetching translation...\t");
+    // Set unsync get
+    thrd = new QThread();
+    unsync_conj = new Conjugate();
+    unsync_conj->moveToThread(thrd);
+    unsync_conj->set_trans_url(url);
+    connect(thrd, &QThread::started,
+            unsync_conj, &Conjugate::doWork);
+    connect(unsync_conj, &Conjugate::finishedWork,
+            thrd, &QThread::quit);
+    connect(unsync_conj, &Conjugate::TranslationComplete,
+            this, &MainWindow::update_translation);
+    thrd->start();
 }
-
 
 void MainWindow::on_btn_ok_clicked()
 {
@@ -1001,17 +1018,18 @@ void MainWindow::on_btn_ok_clicked()
         }
    //     qDebug() << k << respone.count();
         this->lbl_status->setText("<font color=\"red\">Wrong.\t</font>");
-        ui->lbl_origin->setText(tr("%1<font color=\"red\">%2</font>")
+        ui->lbl_origin->setText(tr("<font color=\"green\">Respon:</font> %1<font color=\"red\">%2</font>")
                                 .arg(respone.left(k))
                                 .arg(respone.remove(0,k)));
-        ui->lbl_sent->setText(this->quiz_sent);
     }
-
     //this->speech->say(this->quiz_sent);
     // new quiz
     ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2)")
                            .arg(this->right_sent_complete)
                            .arg(this->sent_complete));
+    ui->lbl_sent->setText("<font color=\"green\">Origin:</font> "+this->quiz_sent);
+    ui->lbl_trans->setText("<font color=\"blue\">Transl:</font> "+this->quiz_trans);
+
     new_sentence_complete_quiz();
 }
 
@@ -1065,4 +1083,19 @@ void MainWindow::on_chk_show_pronoms_stateChanged(int arg1)
     }else{
         ui->tbl_pronom->clear();
     }
+}
+
+void MainWindow::update_translation(QString translation)
+{
+//    qDebug() << translation;
+    QJsonDocument doc = QJsonDocument::fromJson(translation.toLocal8Bit().data());
+    //QJsonArray arr = QJsonArray::fromStringList(doc.toVariant().toMap()["text"]);
+    QJsonObject obj = doc.object();
+    QJsonArray arr = obj.take("text").toArray();
+    this->quiz_trans = arr.toVariantList().at(0).toString();
+    this->lbl_network->setText("Fetched OK.\t");
+
+    // Release thread and conj
+    unsync_conj->deleteLater();
+    thrd->deleteLater();
 }

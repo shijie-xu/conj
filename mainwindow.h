@@ -84,6 +84,8 @@ private slots:
 
     void on_chk_show_pronoms_stateChanged(int arg1);
 
+    void update_translation(QString trans);
+
 private:
     Ui::MainWindow *ui;
 
@@ -169,8 +171,11 @@ private:
 
     QList<QString> sent_list;
     QString quiz_sent;
+    QString quiz_trans;
 
     QMap<QString,int> words_freq;
+    Conjugate *unsync_conj;
+    QThread *thrd;
 };
 
 #endif // MAINWINDOW_H
