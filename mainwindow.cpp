@@ -71,6 +71,10 @@ MainWindow::MainWindow(QWidget *parent)
     passed_cycles = 0;
     right_cycles = 0;
 
+    // Set complete
+    sent_complete = 0;
+    right_sent_complete = 0;
+
     // Set status bar
     this->progress = new QProgressBar(this);
     progress->setRange(0, quiz_cycles);
@@ -90,6 +94,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(sc_play, SIGNAL(activated()), this, SLOT(on_btn_play_word_clicked()));
     QShortcut *sc_hide = new QShortcut(QKeySequence("F9"), this);
     connect(sc_hide, SIGNAL(activated()), this, SLOT(on_hide_window()));
+    QShortcut *sc_clear = new QShortcut(QKeySequence("Q"), this);
+    connect(sc_clear, SIGNAL(activated()), this, SLOT(on_clear_complete_operation()));
+    QShortcut *sc_check = new QShortcut(QKeySequence("W"), this);
+    connect(sc_check, SIGNAL(activated()), this, SLOT(on_btn_ok_clicked()));
 
     // Load words file
     QFile src(words_file_path);
@@ -163,6 +171,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->lst_words->setFixedWidth(200);
     ui->btn_ok->setFixedSize(100,60);
     ui->btn_play->setFixedSize(100,60);
+    ui->lbl_origin->setWordWrap(true);
+    ui->lbl_sent->setWordWrap(true);
 
     // Set tab3
     update_tab3();
@@ -170,14 +180,21 @@ MainWindow::MainWindow(QWidget *parent)
     // Set tab4
     //ui->te_sentence->setEnabled(false);
     // File must be saved in `UTF-8 with BOM` format
+    // Calculate word frequency
+    ui->lbl_complete_info->setText(
+                "Press <b>q</b> to clear, <b>w</b> to check.");
+    words_freq_calc("src.txt");
+    words_freq_calc("src1.txt");
+
     QFile sourceTxt("src.txt");
     sourceTxt.open(QIODevice::ReadOnly);
     QTextStream tsSource(&sourceTxt);
     QString content = tsSource.readAll();
-    QRegExp rx("\\.|\\?|\\n|\\…|\\:|\\;|\\,|\\!|\\*|\\—");
+    QRegExp rx("\\.|\\?|\\n|\\…|\\:|\\;|\\,|\\!|\\*|\\—|\\(|\\)|\\«|\\»|\\–");
     this->sent_list = content.split(rx);
     new_sentence_complete_quiz();
 
+    // Set tab5
 //    int k = QRandomGenerator::global()->bounded(this->sent_list.count());
 //    ui->te_sentence->setText(this->sent_list.at(k));
     //ui->tabWidget->setCurrentIndex(0);
@@ -414,6 +431,19 @@ void MainWindow::single_pronom_quiz()
     "vous", "vous", "vous", "vous", "vous",
     "ils", "les", "leur", "se", "eux",
     "elles", "les", "leur", "se", "elles"};
+    if (ui->chk_show_pronoms->isChecked()){
+        ui->tbl_pronom->setColumnCount(5);
+        ui->tbl_pronom->setRowCount(8);
+        for(int i=0;i<8;i++){
+            for(int j=0;j<5;j++){
+                QString w = pro[i*5+j];
+                QTableWidgetItem *item = new QTableWidgetItem(w);
+                ui->tbl_pronom->setItem(i,j,item);
+            }
+        }
+    }else{
+        ui->tbl_pronom->clear();
+    }
     int p = QRandomGenerator::global()->bounded(5);
     int pr = QRandomGenerator::global()->bounded(8);
     this->pronom_answer = pro[pr*5+p];
@@ -421,6 +451,29 @@ void MainWindow::single_pronom_quiz()
     ui->lbl_pronom_pos->setText(tr("(%1, %2): ")
                                 .arg(pos[p])
                                 .arg(pronoms[pr]));
+}
+
+void MainWindow::words_freq_calc(QString file)
+{
+    QFile sourceTxt(file);
+    sourceTxt.open(QIODevice::ReadOnly);
+    QTextStream tsSource(&sourceTxt);
+    QString content = tsSource.readAll();
+    QRegExp rx("’|\\ |\\.|\\?|\\n|\\…|\\:|\\;|\\,|\\!|\\*|\\—|\\(|\\)|\\»|\\–");
+    QList<QString> word_list = content.split(rx);
+    for (QList<QString>::iterator it = word_list.begin(); it != word_list.end(); it++) {
+        if ( !it->isEmpty()){
+            QString word = it->toLower();
+            if(this->words_freq.contains(word)){
+                words_freq[word]++;
+            }else{
+                words_freq[word] = 1;
+            }
+        }
+    }
+//    for ( QMap<QString,int>::iterator it = this->words_freq.begin(); it != words_freq.end(); it++){
+//        qDebug() << it.key() << it.value();
+//    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -893,6 +946,10 @@ void MainWindow::on_le_pronom_returnPressed()
 
 void MainWindow::new_sentence_complete_quiz()
 {
+    int min_length = ui->spin_min->value();
+    int max_length = ui->spin_max->value();
+    int avg_freq = ui->spin_freq->value();
+
     ui->lst_words->clear();
     ui->te_sentence->clear();
     bool succ = false;
@@ -903,9 +960,16 @@ void MainWindow::new_sentence_complete_quiz()
         QList<QString> words = this->quiz_sent.split(" ");
         // Shuffle words seq
         std::random_shuffle(words.begin(), words.end());
+        // Calclate difficulty
+        int diff = 0;
+        for(QList<QString>::iterator it = words.begin(); it!=words.end();it++){
+            diff += this->words_freq[*it];
+        }
+        //qDebug () << (double) diff / words.count();
+        if ((double) diff / words.count() < avg_freq) continue;
         // Show words in list view
-        if (words.count()<5 || words.count()>10)continue;
-        qDebug () << words;
+        if (words.count()< min_length || words.count() > max_length )continue;
+       // qDebug () << words;
         for (int i = 0; i < words.count(); ++i) {
             QString w = words.at(i);
             if (!w.isEmpty()){
@@ -919,18 +983,23 @@ void MainWindow::new_sentence_complete_quiz()
 
 void MainWindow::on_btn_ok_clicked()
 {
+    this->sent_complete++;
     QString respone = ui->te_sentence->toPlainText();
+    ui->lbl_sent->clear();
+    ui->lbl_origin->clear();
     if ( respone.isEmpty()){
         ui->lbl_origin->setText("<Empty>");
     }
     else if (ui->te_sentence->toPlainText().trimmed() == this->quiz_sent){
+        ui->lbl_origin->setText("<Right>");
         this->lbl_status->setText("<font color=\"green\">OK.\t</font>");
+        this->right_sent_complete++;
     }else{
         int k;
         for(k=0;k<respone.count();k++){
             if ( respone.at(k) != this->quiz_sent.at(k))break;
         }
-        qDebug() << k << respone.count();
+   //     qDebug() << k << respone.count();
         this->lbl_status->setText("<font color=\"red\">Wrong.\t</font>");
         ui->lbl_origin->setText(tr("%1<font color=\"red\">%2</font>")
                                 .arg(respone.left(k))
@@ -940,12 +1009,17 @@ void MainWindow::on_btn_ok_clicked()
 
     //this->speech->say(this->quiz_sent);
     // new quiz
+    ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2)")
+                           .arg(this->right_sent_complete)
+                           .arg(this->sent_complete));
     new_sentence_complete_quiz();
 }
 
 void MainWindow::on_lst_words_itemClicked(QListWidgetItem *item)
 {
+    if ( item->text().at(0)=="*")return;
     QString cur_word = item->text();
+    item->setText(tr("*%1").arg(cur_word));
     this->lbl_status->setText(tr("You chose %1.\t").arg(cur_word));
     ui->te_sentence->insertPlainText(cur_word+" ");
 }
@@ -953,4 +1027,42 @@ void MainWindow::on_lst_words_itemClicked(QListWidgetItem *item)
 void MainWindow::on_btn_play_clicked()
 {
     this->speech->say(this->quiz_sent);
+}
+
+void MainWindow::on_clear_complete_operation()
+{
+    ui->te_sentence->clear();
+    for ( int i=0;i<ui->lst_words->count(); i++){
+        QString text = ui->lst_words->item(i)->text();
+        if (text.at(0)=="*")
+            ui->lst_words->item(i)->setText(text.remove(0,1));
+    }
+}
+
+void MainWindow::on_chk_show_pronoms_stateChanged(int arg1)
+{
+    QString pos[] = {"subject", "direct object", "indirect object", "reflexive", "emphatic"};
+    QString pronoms[] = {"je", "tu", "il", "elle", "nous", "vous", "ils", "elles"};
+    QString pro[] = {
+    "je", "me", "me", "me", "moi",
+    "tu", "te", "te", "te", "toi",
+    "il", "le", "lui", "se", "lui",
+    "elle", "la", "lui", "se", "elle",
+    "nous", "nous", "nous", "nous", "nous",
+    "vous", "vous", "vous", "vous", "vous",
+    "ils", "les", "leur", "se", "eux",
+    "elles", "les", "leur", "se", "elles"};
+    if (ui->chk_show_pronoms->isChecked()){
+        ui->tbl_pronom->setColumnCount(5);
+        ui->tbl_pronom->setRowCount(8);
+        for(int i=0;i<8;i++){
+            for(int j=0;j<5;j++){
+                QString w = pro[i*5+j];
+                QTableWidgetItem *item = new QTableWidgetItem(w);
+                ui->tbl_pronom->setItem(i,j,item);
+            }
+        }
+    }else{
+        ui->tbl_pronom->clear();
+    }
 }

@@ -40,6 +40,8 @@ public:
 
     void single_pronom_quiz();
 
+    void words_freq_calc(QString file);
+
 protected:
     void closeEvent(QCloseEvent *event);
 
@@ -77,6 +79,10 @@ private slots:
     void on_lst_words_itemClicked(QListWidgetItem *item);
 
     void on_btn_play_clicked();
+
+    void on_clear_complete_operation();
+
+    void on_chk_show_pronoms_stateChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;
@@ -139,6 +145,9 @@ private:
     int quiz_new_rate;
     QString quiz_word;
 
+    int sent_complete;
+    int right_sent_complete;
+
     QMap<QString, bool> tenses_switch;
     QMap<QString, double> study_history;
     QMap<QString, int> right_study;
@@ -160,6 +169,8 @@ private:
 
     QList<QString> sent_list;
     QString quiz_sent;
+
+    QMap<QString,int> words_freq;
 };
 
 #endif // MAINWINDOW_H
