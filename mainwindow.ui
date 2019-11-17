@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -110,6 +110,16 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Statistics</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <layout class="QHBoxLayout" name="hb_sta"/>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
         <string>Pronom</string>
@@ -168,213 +178,124 @@
        <attribute name="title">
         <string>Complete</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_14">
+       <layout class="QHBoxLayout" name="horizontalLayout_13">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_13">
+         <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_5">
+           <layout class="QHBoxLayout" name="horizontalLayout_12">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_12">
-              <item>
-               <widget class="QLabel" name="lbl_words">
-                <property name="font">
-                 <font>
-                  <family>Cascadia Code</family>
-                  <pointsize>12</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Complete</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="lbl_complete_info">
-                <property name="font">
-                 <font>
-                  <family>Cascadia Code</family>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>text</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_9">
-              <item>
-               <widget class="QLabel" name="label">
-                <property name="font">
-                 <font>
-                  <family>Cascadia Code</family>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Avg freqency of words</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="spin_freq">
-                <property name="maximum">
-                 <number>100000</number>
-                </property>
-                <property name="value">
-                 <number>1000</number>
-                </property>
-                <property name="displayIntegerBase">
-                 <number>10</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_10">
-              <item>
-               <widget class="QLabel" name="label_2">
-                <property name="font">
-                 <font>
-                  <family>Cascadia Code</family>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Min sentence length</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="spin_min">
-                <property name="value">
-                 <number>3</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_11">
-              <item>
-               <widget class="QLabel" name="label_3">
-                <property name="font">
-                 <font>
-                  <family>Cascadia Code</family>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Max sentence length</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="spin_max">
-                <property name="value">
-                 <number>8</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QTextEdit" name="te_sentence">
+             <widget class="QLabel" name="lbl_words">
               <property name="font">
                <font>
                 <family>Cascadia Code</family>
                 <pointsize>12</pointsize>
-                <weight>50</weight>
-                <bold>false</bold>
                </font>
+              </property>
+              <property name="text">
+               <string>Complete</string>
               </property>
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_8">
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_4">
-                <item>
-                 <widget class="QLabel" name="lbl_origin">
-                  <property name="font">
-                   <font>
-                    <family>Cascadia Code</family>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="lbl_sent">
-                  <property name="font">
-                   <font>
-                    <family>Cascadia Code</family>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="lbl_trans">
-                  <property name="font">
-                   <font>
-                    <family>Cascadia Code</family>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <italic>true</italic>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <widget class="QPushButton" name="btn_play">
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Play</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="btn_ok">
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Check</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <widget class="QLabel" name="lbl_complete_info">
+              <property name="font">
+               <font>
+                <family>Cascadia Code</family>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>text</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
           <item>
-           <widget class="QListWidget" name="lst_words">
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="font">
+               <font>
+                <family>Cascadia Code</family>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Avg freqency of words</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spin_freq">
+              <property name="maximum">
+               <number>100000</number>
+              </property>
+              <property name="value">
+               <number>50</number>
+              </property>
+              <property name="displayIntegerBase">
+               <number>10</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="font">
+               <font>
+                <family>Cascadia Code</family>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Min sentence length</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spin_min">
+              <property name="value">
+               <number>3</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="font">
+               <font>
+                <family>Cascadia Code</family>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Max sentence length</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spin_max">
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+               </font>
+              </property>
+              <property name="value">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QTextEdit" name="te_sentence">
             <property name="font">
              <font>
               <family>Cascadia Code</family>
@@ -385,19 +306,114 @@
             </property>
            </widget>
           </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QLabel" name="lbl_origin">
+                <property name="font">
+                 <font>
+                  <family>Cascadia Code</family>
+                  <pointsize>10</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lbl_sent">
+                <property name="font">
+                 <font>
+                  <family>Cascadia Code</family>
+                  <pointsize>10</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lbl_trans">
+                <property name="font">
+                 <font>
+                  <family>Cascadia Code</family>
+                  <pointsize>10</pointsize>
+                  <weight>50</weight>
+                  <italic>true</italic>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btn_play">
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Play</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btn_ok">
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Check</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QListWidget" name="lst_words">
+          <property name="font">
+           <font>
+            <family>Cascadia Code</family>
+            <pointsize>12</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_3">
+      <widget class="QWidget" name="tab_5">
        <attribute name="title">
-        <string>Statistics</string>
+        <string>Complete Statistics</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <layout class="QHBoxLayout" name="horizontalLayout_15">
         <item>
-         <layout class="QHBoxLayout" name="hb_sta"/>
+         <layout class="QVBoxLayout" name="vb_cs"/>
         </item>
        </layout>
+      </widget>
+      <widget class="QWidget" name="tab_6">
+       <attribute name="title">
+        <string>History</string>
+       </attribute>
       </widget>
      </widget>
     </item>

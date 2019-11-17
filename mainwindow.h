@@ -32,6 +32,8 @@ public:
 
     void single_quiz();
     void update_tab3();
+    void update_tab_cs();
+    void init_tab_cs();
 
     QMap<QString,double> map_read_from_variant(QVariantMap);
     QVariantMap variant_read_from_map(QMap<QString, int>, QMap<QString, int>);
@@ -85,6 +87,8 @@ private slots:
     void on_chk_show_pronoms_stateChanged(int arg1);
 
     void update_translation(QString trans);
+
+    void on_tabWidget_currentChanged(int index);
 
 private:
     Ui::MainWindow *ui;
@@ -174,6 +178,8 @@ private:
     QString quiz_trans;
 
     QMap<QString,int> words_freq;
+    qint64 total_words;
+    QList<QString> words_learned;
     Conjugate *unsync_conj;
     QThread *thrd;
 };

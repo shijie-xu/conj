@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Since QRandomGenerator use facilities provide by OS,
     // no need produces for seed here.
     //qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-    srand(time(NULL));
+    srand(time(nullptr));
 
     // Read settings and set window
     settings = new QSettings("settings.ini", QSettings::IniFormat, this);
@@ -169,11 +169,12 @@ MainWindow::MainWindow(QWidget *parent)
     // Set fixed size
     ui->lst_history->setFixedWidth(200);
     this->progress->setFixedWidth(300);
-    ui->lst_words->setFixedWidth(200);
+    ui->lst_words->setFixedWidth(300);
     ui->btn_ok->setFixedSize(100,60);
     ui->btn_play->setFixedSize(100,60);
     ui->lbl_origin->setWordWrap(true);
     ui->lbl_sent->setWordWrap(true);
+    ui->lbl_trans->setWordWrap(true);
 
     // Set tab3
     update_tab3();
@@ -184,16 +185,18 @@ MainWindow::MainWindow(QWidget *parent)
     // Calculate word frequency
     ui->lbl_complete_info->setText(
                 "Press <b>q</b> to clear, <b>w</b> to check.");
+    this->total_words = 0;
     words_freq_calc("src.txt");
-    words_freq_calc("src1.txt");
-
     QFile sourceTxt("src.txt");
     sourceTxt.open(QIODevice::ReadOnly);
     QTextStream tsSource(&sourceTxt);
     QString content = tsSource.readAll();
-    QRegExp rx("\\.|\\?|\\n|\\…|\\:|\\;|\\,|\\!|\\*|\\—|\\(|\\)|\\«|\\»|\\–");
+    QRegExp rx("\\.|\\?|\\n|\\…|\\:|\\;|\\,|\\!|\\*|\\—|\\(|\\)|\\«|\\»|\\–|[0-9]");
     this->sent_list = content.split(rx);
     new_sentence_complete_quiz();
+
+    // Set tab complete
+    init_tab_cs();
 
     // Set tab5
 //    int k = QRandomGenerator::global()->bounded(this->sent_list.count());
@@ -371,7 +374,32 @@ void MainWindow::update_tab3()
 //    QChartView *chartView_history = new QChartView(chart_history);
 
     ui->hb_sta->addWidget(chartView_words);
-//    ui->hb_sta->addWidget(chartView_history);
+    //    ui->hb_sta->addWidget(chartView_history);
+}
+
+void MainWindow::update_tab_cs()
+{
+
+}
+
+void MainWindow::init_tab_cs()
+{
+    int learned = this->words_learned.count();
+    int total = this->words_freq.count();
+
+    QPieSeries *series = new QPieSeries(this);
+    series->append(tr("Learned %1").arg(learned), learned);
+    series->append(tr("Remaining %1").arg(total), total);
+    series->setLabelsVisible();
+
+    QChart *chart = new QChart();
+    chart->addSeries(series);
+    chart->setTitle(tr("<h3>Complete Progress (Last Time)</h3>"));
+
+    QChartView *chartView_words = new QChartView(chart, this);
+    chartView_words->setRenderHint(QPainter::Antialiasing);
+
+    ui->vb_cs->addWidget(chartView_words);
 }
 
 QMap<QString, double> MainWindow::map_read_from_variant(QVariantMap vmap)
@@ -470,6 +498,7 @@ void MainWindow::words_freq_calc(QString file)
             }else{
                 words_freq[word] = 1;
             }
+            this->total_words++;
         }
     }
 //    for ( QMap<QString,int>::iterator it = this->words_freq.begin(); it != words_freq.end(); it++){
@@ -799,7 +828,7 @@ void MainWindow::on_actionAbout_A_triggered()
                 this, "About us",
                 "<b>French Conjugator v1.0</b> aims to help people who suffer from the disgusting verb conjugations in French laguage in a related easy way. "
                 "Allrights reserved © <a href=\"https://github.com/shijie-xu/conj/releases\">Shi-Jie Xu</a>. "
-                "Thanks to <a href=\"http://verbe.cc\">http://verbe.cc</a> for providing verbs conjugation interface, and to <a href=\"https://en.wiktionary.org/wiki/Category:French_irregular_verbs\">Wikitionary</a> for providing irregular verbs list. "
+                "Thanks to <a href=\"http://verbe.cc\">http://verbe.cc</a> for providing verbs conjugation interface, to <a href=\"https://tech.yandex.com/translate/\">Yandex translate</a> for the translation api, and to <a href=\"https://en.wiktionary.org/wiki/Category:French_irregular_verbs\">Wikitionary</a> for providing irregular verbs list. "
                 "See more details <a href=\"https://en.wiktionary.org/wiki/Appendix:French_irregular_verbs\">here.</a><br>"
                 + tr("Built with Qt %1 on %2.").arg(QT_VERSION_STR).arg(QLocale("en_US").toDate(QString(__DATE__).simplified(), tr("MMM d yyyy")).toString("yyyy-MM-d")),
                 QMessageBox::Yes, QMessageBox::Yes);
@@ -967,7 +996,8 @@ void MainWindow::new_sentence_complete_quiz()
             diff += this->words_freq[*it];
         }
         //qDebug () << (double) diff / words.count();
-        if ((double) diff / words.count() < avg_freq) continue;
+        //qDebug () << 1000.0*(double) diff / this->total_words;
+        if (1000.0* diff / this->total_words < avg_freq) continue;
         // Show words in list view
         if (words.count()< min_length || words.count() > max_length )continue;
        // qDebug () << words;
@@ -982,13 +1012,21 @@ void MainWindow::new_sentence_complete_quiz()
     // Translate
     // Install openssl dll firstly: http://slproweb.com/products/Win32OpenSSL.html
     // Then create yandex api
-    QString url = tr("https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20191116T145524Z.a006c2b4351496e9.677dfb7949c1d615bf5aab3d2071ddb45ee750f7&text=%1&lang=fr-en").arg(this->quiz_sent);
+    QString target_lang = "en";
+//    if (ui->chk_enzh->isChecked()){
+//        target_lang = "zh";
+//    }else{
+//        target_lang = "en";
+//    }
+    QString url = tr("https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20191116T145524Z.a006c2b4351496e9.677dfb7949c1d615bf5aab3d2071ddb45ee750f7&text=%1&lang=fr-%2").arg(this->quiz_sent).arg(target_lang);
     this->lbl_network->setText("Fetching translation...\t");
     // Set unsync get
     thrd = new QThread();
+
     unsync_conj = new Conjugate();
     unsync_conj->moveToThread(thrd);
     unsync_conj->set_trans_url(url);
+
     connect(thrd, &QThread::started,
             unsync_conj, &Conjugate::doWork);
     connect(unsync_conj, &Conjugate::finishedWork,
@@ -996,6 +1034,7 @@ void MainWindow::new_sentence_complete_quiz()
     connect(unsync_conj, &Conjugate::TranslationComplete,
             this, &MainWindow::update_translation);
     thrd->start();
+    ui->btn_ok->setEnabled(false);
 }
 
 void MainWindow::on_btn_ok_clicked()
@@ -1008,7 +1047,7 @@ void MainWindow::on_btn_ok_clicked()
         ui->lbl_origin->setText("<Empty>");
     }
     else if (ui->te_sentence->toPlainText().trimmed() == this->quiz_sent){
-        ui->lbl_origin->setText("<Right>");
+        ui->lbl_origin->setText("<font color=\"#00ff00\">Right!</font>");
         this->lbl_status->setText("<font color=\"green\">OK.\t</font>");
         this->right_sent_complete++;
     }else{
@@ -1094,8 +1133,17 @@ void MainWindow::update_translation(QString translation)
     QJsonArray arr = obj.take("text").toArray();
     this->quiz_trans = arr.toVariantList().at(0).toString();
     this->lbl_network->setText("Fetched OK.\t");
+    ui->btn_ok->setEnabled(true);
+    ui->lbl_trans->setToolTip("[Hint] "+ this->quiz_trans);
 
     // Release thread and conj
     unsync_conj->deleteLater();
     thrd->deleteLater();
+}
+
+void MainWindow::on_tabWidget_currentChanged(int index)
+{
+    if (index == 4){
+        update_tab_cs();
+    }
 }
