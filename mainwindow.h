@@ -44,6 +44,8 @@ public:
 
     void words_freq_calc(QString file);
 
+    qint64 string_hash(QString str);
+
 protected:
     void closeEvent(QCloseEvent *event);
 

@@ -36,6 +36,10 @@
 #include <QShortcut>
 #include <QKeySequence>
 #include <QThread>
+#include <QTextFormat>
+#include <QColor>
+#include <QDataStream>
+#include <QByteArray>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -53,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Since QRandomGenerator use facilities provide by OS,
     // no need produces for seed here.
     //qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-    srand(time(nullptr));
+    srand((unsigned int)time(nullptr));
 
     // Read settings and set window
     settings = new QSettings("settings.ini", QSettings::IniFormat, this);
@@ -114,7 +118,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->words_list = QJsonDocument::fromJson(
                 QString(src.readAll()).toUtf8()).array();
     words_count = words_list.count();
-    // NOTICE: Unccessary komma is NOT permitde!
+
+    // NOTICE: Unccessary komma is NOT permitted!
     // You must write word json file like this:
     // ["word1", "word2", ..., "wordn"]
 
@@ -187,14 +192,15 @@ MainWindow::MainWindow(QWidget *parent)
     update_tab3();
 
     // Set tab4
-    //ui->te_sentence->setEnabled(false);
+    ui->te_sentence->setReadOnly(true);
     // File must be saved in `UTF-8 with BOM` format
     // Calculate word frequency
-    ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2)")
+    ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2/%3%)")
                            .arg(this->right_sent_complete)
-                           .arg(this->sent_complete));
+                           .arg(this->sent_complete)
+                           .arg(100*this->right_sent_complete/this->sent_complete));
     ui->lbl_complete_info->setText(
-                "Press <b>q</b> to clear, <b>w</b> to check.");
+                "Press q to clear, w to check.");
     this->total_words = 0;
     words_freq_calc("src.txt");
     QFile sourceTxt("src.txt");
@@ -208,10 +214,10 @@ MainWindow::MainWindow(QWidget *parent)
     // Set tab complete
     init_tab_cs();
 
-    // Set tab5
+//    Set tab5
 //    int k = QRandomGenerator::global()->bounded(this->sent_list.count());
 //    ui->te_sentence->setText(this->sent_list.at(k));
-    //ui->tabWidget->setCurrentIndex(0);
+//    ui->tabWidget->setCurrentIndex(0);
 }
 
 MainWindow::~MainWindow()
@@ -513,10 +519,22 @@ void MainWindow::words_freq_calc(QString file)
     }
 //    for ( QMap<QString,int>::iterator it = this->words_freq.begin(); it != words_freq.end(); it++){
 //        qDebug() << it.key() << it.value();
-//    }
+    //    }
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+qint64 MainWindow::string_hash(QString str)
+{
+    QByteArray hash = QCryptographicHash::hash(
+                QByteArray::fromRawData((const char*)str.utf16(), str.length()*2),
+                QCryptographicHash::Md5);
+    Q_ASSERT(hash.size() == 16);
+    QDataStream stream(hash);
+    qint64 a, b;
+    stream >> a >> b;
+    return a ^ b;
+}
+
+void MainWindow::closeEvent(QCloseEvent*)
 {
     // Set mainwindow position and size
     settings->setValue("pos", QVariant(this->pos()).toPoint());
@@ -1003,7 +1021,7 @@ void MainWindow::new_sentence_complete_quiz()
         int k = QRandomGenerator::global()->bounded(this->sent_list.count());
         this->quiz_sent = this->sent_list.at(k).trimmed();
         QList<QString> words = this->quiz_sent.split(" ");
-        // Shuffle words seq
+        // Shuffle words sequence
         std::random_shuffle(words.begin(), words.end());
         // Calclate difficulty
         int diff = 0;
@@ -1078,9 +1096,10 @@ void MainWindow::on_btn_ok_clicked()
     }
     //this->speech->say(this->quiz_sent);
     // new quiz
-    ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2)")
+    ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2/%3%)")
                            .arg(this->right_sent_complete)
-                           .arg(this->sent_complete));
+                           .arg(this->sent_complete)
+                           .arg(100*this->right_sent_complete/this->sent_complete));
     ui->lbl_sent->setText("<font color=\"green\">Origin:</font> "+this->quiz_sent);
     ui->lbl_trans->setText("<font color=\"blue\">Transl:</font> "+this->quiz_trans);
 
@@ -1093,7 +1112,84 @@ void MainWindow::on_lst_words_itemClicked(QListWidgetItem *item)
     QString cur_word = item->text();
     item->setText(tr("*%1").arg(cur_word));
     this->lbl_status->setText(tr("You chose %1.\t").arg(cur_word));
-    ui->te_sentence->insertPlainText(cur_word+" ");
+
+    // Choose colors, ref here: https://blog.csdn.net/daichanglin/article/details/1563299
+    // Colorful apperance may reduce the pressure of studying.
+    QStringList colors = {
+        "#FFB6C1",      //浅粉红
+        "#FFC0CB",      //粉红
+//        "#FF69B4",      //热情的粉红
+//        "#DA70D6",      //兰花的紫色
+//        "#EE82EE",      //紫罗兰
+//        "#9400D3",      //深紫罗兰色
+//        "#7B68EE",      //适中的板岩暗蓝灰色
+        "#E6E6FA",      //熏衣草花的淡紫色
+//        "#4169E1",      //皇军蓝
+//        "#6495ED",      //矢车菊的蓝色
+        "#B0C4DE",      //淡钢蓝
+        "#87CEFA",      //淡蓝色
+        "#87CEEB",      //天蓝色
+//        "#00BFFF",      //深天蓝
+        "#ADD8E6",      //淡蓝
+        "#B0E0E6",      //火药蓝
+//        "#F0FFFF",      //蔚蓝色
+        "#E1FFFF",      //淡青色
+        "#AFEEEE",      //苍白的绿宝石
+//        "#00FFFF",      //青色
+//        "#00CED1",      //深绿宝石
+//        "#48D1CC",      //适中的绿宝石
+//        "#20B2AA",      //浅海洋绿
+        "#40E0D0",      //绿宝石
+//        "#00FA9A",      //适中的碧绿色
+//        "#F5FFFA",      //适中的春天的绿色
+//        "#F0FFF0",      //蜂蜜
+        "#90EE90",      //淡绿色
+        "#98FB98",      //苍白的绿色
+//        "#6B8E23",      //米色(浅褐色)
+//        "#FAFAD2",      //浅秋麒麟黄
+//        "#FFFFF0",      //象牙
+//        "#FFFFE0",      //浅黄色
+//        "#BDB76B",      //深卡其布
+//        "#FFFACD",      //柠檬薄纱
+//        "#F0E68C",      //卡其布
+        "#FFD700",      //金
+//        "#FFFAF0",      //花的白色
+//        "#FDF5E6",      //老饰带
+        "#F5DEB3",      //小麦色
+        "#FFE4B5",      //鹿皮鞋
+//        "#FFA500",      //橙色
+        "#FFEFD5",      //番木瓜
+        "#FFEBCD",      //漂白的杏仁
+        "#FFDEAD",      //Navajo白
+        "#FAEBD7",      //古代的白色
+//        "#D2B48C",      //晒黑
+        "#FFE4C4",      //(浓汤)乳脂,番茄等
+//        "#FF8C00",      //深橙色
+//        "#FAF0E6",      //亚麻布
+//        "#CD853F",      //秘鲁
+        "#FFDAB9",      //桃色
+//        "#F4A460",      //沙棕色
+//        "#FFF5EE",      //海贝壳
+        "#FFA07A",      //浅鲜肉(鲑鱼)色
+//        "#FF7F50",      //珊瑚
+//        "#FF4500",      //橙红色
+//        "#E9967A",      //深鲜肉(鲑鱼)色
+//        "#FF6347",      //番茄
+        "#FFE4E1",      //薄雾玫瑰
+//        "#FA8072",      //鲜肉(鲑鱼)色
+//        "#FFFAFA",      //雪
+//        "#FFFFFF",      //纯白
+//        "#F5F5F5",      //白烟
+//        "#DCDCDC",      //Gainsboro
+        "#D3D3D3",      //浅灰色
+    };
+    // Compute the hash function of string, then decide the color of the string,
+    // therefore each string has the unique permanent color chose.
+    int ch = (unsigned int)string_hash(cur_word) % colors.count();
+    qDebug() << colors.at(ch);
+    ui->te_sentence->insertHtml(tr("<span style=\"background-color: %1\">%2</span>")
+                                .arg(colors.at(ch))
+                                .arg(cur_word)+" ");
 }
 
 void MainWindow::on_btn_play_clicked()
@@ -1111,19 +1207,20 @@ void MainWindow::on_clear_complete_operation()
     }
 }
 
-void MainWindow::on_chk_show_pronoms_stateChanged(int arg1)
+void MainWindow::on_chk_show_pronoms_stateChanged(int)
 {
     QString pos[] = {"subject", "direct object", "indirect object", "reflexive", "emphatic"};
     QString pronoms[] = {"je", "tu", "il", "elle", "nous", "vous", "ils", "elles"};
     QString pro[] = {
-    "je", "me", "me", "me", "moi",
-    "tu", "te", "te", "te", "toi",
-    "il", "le", "lui", "se", "lui",
-    "elle", "la", "lui", "se", "elle",
-    "nous", "nous", "nous", "nous", "nous",
-    "vous", "vous", "vous", "vous", "vous",
-    "ils", "les", "leur", "se", "eux",
-    "elles", "les", "leur", "se", "elles"};
+        "je", "me", "me", "me", "moi",
+        "tu", "te", "te", "te", "toi",
+        "il", "le", "lui", "se", "lui",
+        "elle", "la", "lui", "se", "elle",
+        "nous", "nous", "nous", "nous", "nous",
+        "vous", "vous", "vous", "vous", "vous",
+        "ils", "les", "leur", "se", "eux",
+        "elles", "les", "leur", "se", "elles"
+    };
     if (ui->chk_show_pronoms->isChecked()){
         ui->tbl_pronom->setColumnCount(5);
         ui->tbl_pronom->setRowCount(8);
@@ -1149,7 +1246,7 @@ void MainWindow::update_translation(QString translation)
     this->quiz_trans = arr.toVariantList().at(0).toString();
     this->lbl_network->setText("Fetched OK.\t");
     ui->btn_ok->setEnabled(true);
-    ui->lbl_trans->setToolTip("[Hint] "+ this->quiz_trans);
+    ui->lbl_trans->setToolTip(this->quiz_trans);
 
     unsync_conj->deleteLater();
 }
