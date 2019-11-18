@@ -90,6 +90,10 @@ private slots:
 
     void on_tabWidget_currentChanged(int index);
 
+    void on_te_sentence_cursorPositionChanged();
+
+    void on_btn_clear_clicked();
+
 private:
     Ui::MainWindow *ui;
 

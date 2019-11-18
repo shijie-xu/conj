@@ -65,16 +65,22 @@ MainWindow::MainWindow(QWidget *parent)
     this->quiz_new_rate = settings->value("quiz new rate").toInt();
     this->current_study = settings->value("current study").toInt();
     ui->tabWidget->setCurrentIndex(settings->value("last tab").toInt());
+    ui->spin_max->setValue(settings->value("sentence max len").toInt());
+    ui->spin_min->setValue(settings->value("sentence min len").toInt());
+    ui->spin_freq->setValue(settings->value("sentence freq").toInt());
+    this->sent_complete = settings->value("sentence complete").toInt();
+    this->right_sent_complete = settings->value("right sentence complete").toInt();
 
+//    qDebug() << "load settings ok.";
     this->bshow = true;
 
     // Set passed cycles
-    passed_cycles = 0;
-    right_cycles = 0;
+//    passed_cycles = 0;
+//    right_cycles = 0;
 
     // Set complete
-    sent_complete = 0;
-    right_sent_complete = 0;
+//    sent_complete = 0;
+//    right_sent_complete = 0;
 
     // Set status bar
     this->progress = new QProgressBar(this);
@@ -170,8 +176,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->lst_history->setFixedWidth(200);
     this->progress->setFixedWidth(300);
     ui->lst_words->setFixedWidth(300);
-    ui->btn_ok->setFixedSize(100,60);
-    ui->btn_play->setFixedSize(100,60);
+    ui->btn_ok->setFixedSize(75,80);
+    ui->btn_play->setFixedSize(50,80);
+    ui->btn_clear->setFixedSize(50,80);
     ui->lbl_origin->setWordWrap(true);
     ui->lbl_sent->setWordWrap(true);
     ui->lbl_trans->setWordWrap(true);
@@ -183,6 +190,9 @@ MainWindow::MainWindow(QWidget *parent)
     //ui->te_sentence->setEnabled(false);
     // File must be saved in `UTF-8 with BOM` format
     // Calculate word frequency
+    ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2)")
+                           .arg(this->right_sent_complete)
+                           .arg(this->sent_complete));
     ui->lbl_complete_info->setText(
                 "Press <b>q</b> to clear, <b>w</b> to check.");
     this->total_words = 0;
@@ -514,6 +524,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings->setValue("quiz cycles", QVariant(this->quiz_cycles).toInt());
     settings->setValue("current study", QVariant(this->current_study).toInt());
     settings->setValue("last tab", QVariant(ui->tabWidget->currentIndex()));
+    settings->setValue("sentence max len", QVariant(ui->spin_max->value()));
+    settings->setValue("sentence min len", QVariant(ui->spin_min->value()));
+    settings->setValue("sentence freq", QVariant(ui->spin_freq->value()));
+    settings->setValue("sentence complete", QVariant(this->sent_complete).toInt());
+    settings->setValue("right sentence complete", QVariant(this->right_sent_complete).toInt());
 
     // Save study history
 //    QFile fileStudy("study.json");
@@ -1136,9 +1151,7 @@ void MainWindow::update_translation(QString translation)
     ui->btn_ok->setEnabled(true);
     ui->lbl_trans->setToolTip("[Hint] "+ this->quiz_trans);
 
-    // Release thread and conj
     unsync_conj->deleteLater();
-    thrd->deleteLater();
 }
 
 void MainWindow::on_tabWidget_currentChanged(int index)
@@ -1146,4 +1159,19 @@ void MainWindow::on_tabWidget_currentChanged(int index)
     if (index == 4){
         update_tab_cs();
     }
+}
+
+void MainWindow::on_te_sentence_cursorPositionChanged()
+{
+    QTextCursor cur = ui->te_sentence->textCursor();
+    while (cur.position()!=0 && ui->te_sentence->toPlainText().at(cur.position()-1)!=" "){
+        ui->te_sentence->moveCursor(QTextCursor::Left);
+        cur = ui->te_sentence->textCursor();
+//                qDebug () << cur.position();
+    }
+}
+
+void MainWindow::on_btn_clear_clicked()
+{
+    on_clear_complete_operation();
 }
