@@ -195,10 +195,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->te_sentence->setReadOnly(true);
     // File must be saved in `UTF-8 with BOM` format
     // Calculate word frequency
-    ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2/%3%)")
+    double alpha = 0.8;
+    ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2/%3%/%4)")
                            .arg(this->right_sent_complete)
                            .arg(this->sent_complete)
-                           .arg(100*this->right_sent_complete/this->sent_complete));
+                           .arg(100*this->right_sent_complete/this->sent_complete)
+                           .arg((int)((alpha*this->sent_complete-this->right_sent_complete)/(1-alpha))));
     ui->lbl_complete_info->setText(
                 "Press q to clear, w to check.");
     this->total_words = 0;
@@ -1096,10 +1098,12 @@ void MainWindow::on_btn_ok_clicked()
     }
     //this->speech->say(this->quiz_sent);
     // new quiz
-    ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2/%3%)")
+    double alpha = 0.8;
+    ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2/%3%/%4)")
                            .arg(this->right_sent_complete)
                            .arg(this->sent_complete)
-                           .arg(100*this->right_sent_complete/this->sent_complete));
+                           .arg(100*this->right_sent_complete/this->sent_complete)
+                           .arg((int)((alpha*this->sent_complete-this->right_sent_complete)/(1-alpha))));
     ui->lbl_sent->setText("<font color=\"green\">Origin:</font> "+this->quiz_sent);
     ui->lbl_trans->setText("<font color=\"blue\">Transl:</font> "+this->quiz_trans);
 
@@ -1186,7 +1190,7 @@ void MainWindow::on_lst_words_itemClicked(QListWidgetItem *item)
     // Compute the hash function of string, then decide the color of the string,
     // therefore each string has the unique permanent color chose.
     int ch = (unsigned int)string_hash(cur_word) % colors.count();
-    qDebug() << colors.at(ch);
+    // COMMENTED_DEBUG: qDebug() << colors.at(ch);
     ui->te_sentence->insertHtml(tr("<span style=\"background-color: %1\">%2</span>")
                                 .arg(colors.at(ch))
                                 .arg(cur_word)+" ");

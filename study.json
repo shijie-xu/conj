@@ -1,7 +1,22 @@
 {
-    "aller": null,
+    "acheter": 1,
+    "aller": 1,
+    "appeler": 0,
     "avoir": 1,
-    "dire": 1,
+    "dire": 0,
+    "dormir": 1,
     "faire": 1,
-    "être": 1
+    "falloir": 0,
+    "lancer": 1,
+    "manger": 1,
+    "mettre": 0,
+    "payer": 0,
+    "pouvoir": 0,
+    "prendre": 0,
+    "savoir": 1,
+    "tenir": 0,
+    "venir": 0,
+    "voir": 0,
+    "vouloir": 1,
+    "être": 0
 }
