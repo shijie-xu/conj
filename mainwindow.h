@@ -34,6 +34,7 @@ public:
     void update_tab3();
     void update_tab_cs();
     void init_tab_cs();
+    void update_tab_history();
 
     QMap<QString,double> map_read_from_variant(QVariantMap);
     QVariantMap variant_read_from_map(QMap<QString, int>, QMap<QString, int>);
@@ -188,6 +189,8 @@ private:
     QList<QString> words_learned;
     Conjugate *unsync_conj;
     QThread *thrd;
+    int exsisted_queries_cout;
+    int cur_queries_count;
 };
 
 #endif // MAINWINDOW_H

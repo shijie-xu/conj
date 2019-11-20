@@ -31,6 +31,10 @@
 #include <QtCharts/QPieSeries>
 #include <QtCharts/QPieSlice>
 #include <QtCharts/QLineSeries>
+#include <QtCharts/QBarSet>
+#include <QtCharts/QBarSeries>
+#include <QtCharts/QLegend>
+#include <QtCharts/QBarCategoryAxis>
 #include <QtTextToSpeech>
 #include <QLocale>
 #include <QShortcut>
@@ -40,6 +44,10 @@
 #include <QColor>
 #include <QDataStream>
 #include <QByteArray>
+#include <QtSql>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -167,6 +175,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Set conjugator
     this->conjugator.setup("http://verbe.cc/vcfr/conjugate/fr/");
     //qDebug()<<this->conjugator.conj("être");
+    this->cur_queries_count = 0;
 
     // Init quiz
     on_actionNew_Quiz_N_triggered();
@@ -190,6 +199,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Set tab3
     update_tab3();
+    update_tab_history();
 
     // Set tab4
     ui->te_sentence->setReadOnly(true);
@@ -420,6 +430,53 @@ void MainWindow::init_tab_cs()
     ui->vb_cs->addWidget(chartView_words);
 }
 
+void MainWindow::update_tab_history()
+{
+    // Connect to the database
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("history.db");
+    if (!db.open()) qDebug() << db.lastError();
+    QSqlQuery query;
+    if(!query.exec("create table completeHistory(date text primary key, requests int)")){
+        qDebug() << query.lastError();
+    }
+    // Query records;
+    QString today = QLocale("en_US").toDate(QString(__DATE__).simplified(), tr("MMM d yyyy")).toString("yyyy-MM-d");
+    query.exec(tr("select * from completeHistory where date=\"%1\"").arg(today));
+    if(query.next()) this->exsisted_queries_cout = query.value(1).toInt();
+//    qDebug() << this->exsisted_queries_cout;
+    QBarSeries *series = new QBarSeries();
+    query.exec("select * from completeHistory");
+    while(query.next()){
+        QString date = query.value(0).toString();
+        QBarSet *hist_set = new QBarSet(date);
+        *hist_set << query.value(1).toInt();
+        series->append(hist_set);
+        //qDebug () << query.value(1).toInt();
+    }
+    db.close();
+
+    QChart *chart = new QChart();
+    chart->addSeries(series);
+//    chart->setTitle("Requests");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+
+    QStringList categories;
+    categories << "Number of Requests" ;
+    QBarCategoryAxis *axis = new QBarCategoryAxis();
+    axis->append(categories);
+    chart->createDefaultAxes();
+    chart->setAxisX(axis, series);
+
+//    chart->legend()->setVisible(true);
+//    chart->legend()->setAlignment(Qt::AlignBottom);
+
+    QChartView *chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+
+    ui->hb_history->addWidget(chartView);
+}
+
 QMap<QString, double> MainWindow::map_read_from_variant(QVariantMap vmap)
 {
     QMap<QString, double> map;
@@ -550,6 +607,16 @@ void MainWindow::closeEvent(QCloseEvent*)
     settings->setValue("sentence complete", QVariant(this->sent_complete).toInt());
     settings->setValue("right sentence complete", QVariant(this->right_sent_complete).toInt());
 
+    // update database
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("history.db");
+    if (!db.open()) qDebug() << db.lastError();
+    QSqlQuery query;
+    QString today = QLocale("en_US").toDate(QString(__DATE__).simplified(), tr("MMM d yyyy")).toString("yyyy-MM-d");
+    query.exec(tr("update completeHistory set requests = %1 where date = \"%2\"")
+               .arg(this->exsisted_queries_cout+this->cur_queries_count)
+               .arg(today));
+//    qDebug() << this->exsisted_queries_cout + this->cur_queries_count;
     // Save study history
 //    QFile fileStudy("study.json");
 //    fileStudy.open(QFile::WriteOnly);
@@ -1068,6 +1135,7 @@ void MainWindow::new_sentence_complete_quiz()
             thrd, &QThread::quit);
     connect(unsync_conj, &Conjugate::TranslationComplete,
             this, &MainWindow::update_translation);
+
     thrd->start();
     ui->btn_ok->setEnabled(false);
 }
@@ -1249,6 +1317,7 @@ void MainWindow::update_translation(QString translation)
     QJsonArray arr = obj.take("text").toArray();
     this->quiz_trans = arr.toVariantList().at(0).toString();
     this->lbl_network->setText("Fetched OK.\t");
+//    this->cur_queries_count++;
     ui->btn_ok->setEnabled(true);
     ui->lbl_trans->setToolTip(this->quiz_trans);
 

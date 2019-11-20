@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>3</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -421,6 +421,11 @@
        <attribute name="title">
         <string>History</string>
        </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_16">
+        <item>
+         <layout class="QHBoxLayout" name="hb_history"/>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
