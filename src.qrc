@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>splash.png</file>
+        <file>trash.png</file>
+        <file>play.png</file>
     </qresource>
 </RCC>

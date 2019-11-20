@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>411</width>
+    <width>642</width>
     <height>376</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>5</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -178,136 +178,311 @@
        <attribute name="title">
         <string>Complete</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_13">
+       <layout class="QHBoxLayout" name="horizontalLayout_14">
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
+         <layout class="QVBoxLayout" name="verticalLayout_8">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_12">
+           <layout class="QHBoxLayout" name="horizontalLayout_13">
             <item>
-             <widget class="QLabel" name="lbl_words">
+             <widget class="QListWidget" name="lst_words">
               <property name="font">
                <font>
                 <family>Cascadia Code</family>
                 <pointsize>12</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
                </font>
               </property>
-              <property name="text">
-               <string>Complete</string>
+              <property name="styleSheet">
+               <string notr="true">QListWidget#lst_words {
+    border-style: inset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: rgb(107,142,35);
+    padding: 4px;
+}
+
+QListWidget::item:selected {
+	background: rgb(135,206,235);
+}
+</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="lbl_complete_info">
-              <property name="font">
-               <font>
-                <family>Cascadia Code</family>
-                <pointsize>10</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>text</string>
-              </property>
-             </widget>
+             <layout class="QVBoxLayout" name="verticalLayout_7">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_5">
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_12">
+                  <item>
+                   <widget class="QLabel" name="lbl_words">
+                    <property name="font">
+                     <font>
+                      <family>Cascadia Code</family>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">QLabel#lbl_words {
+    background-color: rgb(255,255,240);
+    border-radius: 5px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>Complete</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="lbl_complete_info">
+                    <property name="font">
+                     <font>
+                      <family>Cascadia Code</family>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true"/>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_9">
+                  <item>
+                   <widget class="QLabel" name="label">
+                    <property name="font">
+                     <font>
+                      <family>Cascadia Code</family>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Avg freqency of words</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="spin_freq">
+                    <property name="styleSheet">
+                     <string notr="true">QSpinBox#spin_freq {
+    background-color: rgb(255,255,240);
+    border-style: inset;
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: rgb(107,142,35);
+}</string>
+                    </property>
+                    <property name="maximum">
+                     <number>100000</number>
+                    </property>
+                    <property name="value">
+                     <number>50</number>
+                    </property>
+                    <property name="displayIntegerBase">
+                     <number>10</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_10">
+                  <item>
+                   <widget class="QLabel" name="label_2">
+                    <property name="font">
+                     <font>
+                      <family>Cascadia Code</family>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Min sentence length</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="spin_min">
+                    <property name="styleSheet">
+                     <string notr="true">QSpinBox#spin_min {
+    background-color: rgb(255,255,240);
+    border-style: inset;
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: rgb(107,142,35);
+}</string>
+                    </property>
+                    <property name="value">
+                     <number>3</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_11">
+                  <item>
+                   <widget class="QLabel" name="label_3">
+                    <property name="font">
+                     <font>
+                      <family>Cascadia Code</family>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Max sentence length</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="spin_max">
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                     </font>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">QSpinBox#spin_max {
+    background-color: rgb(255,255,240);
+    border-style: inset;
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: rgb(107,142,35);
+}</string>
+                    </property>
+                    <property name="value">
+                     <number>5</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QTextEdit" name="te_sentence">
+                <property name="font">
+                 <font>
+                  <family>Cascadia Code</family>
+                  <pointsize>14</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QTextEdit#te_sentence {
+    border-style: inset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: rgb(107,142,35);
+    padding: 4px;
+}
+</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_9">
-            <item>
-             <widget class="QLabel" name="label">
-              <property name="font">
-               <font>
-                <family>Cascadia Code</family>
-                <pointsize>10</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Avg freqency of words</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="spin_freq">
-              <property name="maximum">
-               <number>100000</number>
-              </property>
-              <property name="value">
-               <number>50</number>
-              </property>
-              <property name="displayIntegerBase">
-               <number>10</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_10">
-            <item>
-             <widget class="QLabel" name="label_2">
-              <property name="font">
-               <font>
-                <family>Cascadia Code</family>
-                <pointsize>10</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Min sentence length</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="spin_min">
-              <property name="value">
-               <number>3</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_11">
-            <item>
-             <widget class="QLabel" name="label_3">
-              <property name="font">
-               <font>
-                <family>Cascadia Code</family>
-                <pointsize>10</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Max sentence length</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="spin_max">
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-               </font>
-              </property>
-              <property name="value">
-               <number>5</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QTextEdit" name="te_sentence">
-            <property name="font">
-             <font>
-              <family>Cascadia Code</family>
-              <pointsize>14</pointsize>
-              <weight>50</weight>
-              <bold>false</bold>
-             </font>
-            </property>
-           </widget>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <item>
+             <widget class="QPushButton" name="btn_ok">
+              <property name="font">
+               <font>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <italic>false</italic>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="acceptDrops">
+               <bool>false</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton#btn_ok {
+    background-color: rgb(255,255,240);
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: rgb(107,142,35);
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+}
+QPushButton#btn_ok:pressed {
+    background-color: rgb(250,250,210);
+    border-style: inset;
+}</string>
+              </property>
+              <property name="text">
+               <string>Check</string>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btn_play">
+              <property name="font">
+               <font>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <italic>false</italic>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton#btn_play{
+    background-color: rgb(176,224,230);
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: rgb(107,142,35);
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+}
+QPushButton#btn_play:pressed {
+    background-color: rgb(135,206,235);
+    border-style: inset;
+}</string>
+              </property>
+              <property name="text">
+               <string>Play</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btn_clear">
+              <property name="styleSheet">
+               <string notr="true">QPushButton#btn_clear {
+    background-color: rgb(176,224,230);
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: rgb(107,142,35);
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+}
+QPushButton#btn_clear:pressed {
+    background-color: rgb(135,206,235);
+    border-style: inset;
+}</string>
+              </property>
+              <property name="text">
+               <string>Clear</string>
+              </property>
+             </widget>
+            </item>
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_4">
               <item>
@@ -319,6 +494,12 @@
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel#lbl_origin {
+    background-color: rgb(	255,235,205);
+    border-radius: 5px;
+}</string>
                 </property>
                 <property name="text">
                  <string/>
@@ -334,6 +515,12 @@
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel#lbl_sent {
+    background-color: rgb(72,209,204);
+    border-radius: 5px;
+}</string>
                 </property>
                 <property name="text">
                  <string/>
@@ -351,6 +538,12 @@
                   <bold>false</bold>
                  </font>
                 </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel#lbl_trans {
+    background-color: rgb(255,192,203);
+    border-radius: 5px;
+}</string>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -358,52 +551,9 @@
               </item>
              </layout>
             </item>
-            <item>
-             <widget class="QPushButton" name="btn_play">
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Play</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="btn_clear">
-              <property name="text">
-               <string>Clear</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="btn_ok">
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Check</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
          </layout>
-        </item>
-        <item>
-         <widget class="QListWidget" name="lst_words">
-          <property name="font">
-           <font>
-            <family>Cascadia Code</family>
-            <pointsize>12</pointsize>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-         </widget>
         </item>
        </layout>
       </widget>
@@ -436,7 +586,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>411</width>
+     <width>642</width>
      <height>17</height>
     </rect>
    </property>

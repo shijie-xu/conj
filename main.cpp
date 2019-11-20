@@ -8,13 +8,13 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    QPixmap pixmap("splash.png");
-    QSplashScreen splash(pixmap);
-    splash.show();
-    a.processEvents();
+//    QPixmap pixmap("splash.png");
+//    QSplashScreen splash(pixmap);
+//    splash.show();
+//    a.processEvents();
 
     MainWindow w;
     w.show();
-    splash.finish(&w);
+//    splash.finish(&w);
     return a.exec();
 }

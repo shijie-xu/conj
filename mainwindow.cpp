@@ -190,6 +190,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->lst_history->setFixedWidth(200);
     this->progress->setFixedWidth(300);
     ui->lst_words->setFixedWidth(300);
+    ui->lst_words->setMinimumHeight(200);
     ui->btn_ok->setFixedSize(75,80);
     ui->btn_play->setFixedSize(50,80);
     ui->btn_clear->setFixedSize(50,80);
@@ -1150,7 +1151,7 @@ void MainWindow::on_btn_ok_clicked()
         ui->lbl_origin->setText("<Empty>");
     }
     else if (ui->te_sentence->toPlainText().trimmed() == this->quiz_sent){
-        ui->lbl_origin->setText("<font color=\"#00ff00\">Right!</font>");
+        ui->lbl_origin->setText("<b>Right!</b>");
         this->lbl_status->setText("<font color=\"green\">OK.\t</font>");
         this->right_sent_complete++;
     }else{
