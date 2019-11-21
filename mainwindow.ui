@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>3</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -557,16 +557,6 @@ QPushButton#btn_clear:pressed {
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_5">
-       <attribute name="title">
-        <string>Complete Statistics</string>
-       </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_15">
-        <item>
-         <layout class="QVBoxLayout" name="vb_cs"/>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="tab_6">
        <attribute name="title">
         <string>History</string>
@@ -587,7 +577,7 @@ QPushButton#btn_clear:pressed {
      <x>0</x>
      <y>0</y>
      <width>642</width>
-     <height>17</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile_F">

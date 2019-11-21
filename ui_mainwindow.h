@@ -97,9 +97,6 @@ public:
     QLabel *lbl_origin;
     QLabel *lbl_sent;
     QLabel *lbl_trans;
-    QWidget *tab_5;
-    QHBoxLayout *horizontalLayout_15;
-    QVBoxLayout *vb_cs;
     QWidget *tab_6;
     QHBoxLayout *horizontalLayout_16;
     QHBoxLayout *hb_history;
@@ -539,16 +536,6 @@ public:
         horizontalLayout_14->addLayout(verticalLayout_8);
 
         tabWidget->addTab(tab_4, QString());
-        tab_5 = new QWidget();
-        tab_5->setObjectName(QString::fromUtf8("tab_5"));
-        horizontalLayout_15 = new QHBoxLayout(tab_5);
-        horizontalLayout_15->setObjectName(QString::fromUtf8("horizontalLayout_15"));
-        vb_cs = new QVBoxLayout();
-        vb_cs->setObjectName(QString::fromUtf8("vb_cs"));
-
-        horizontalLayout_15->addLayout(vb_cs);
-
-        tabWidget->addTab(tab_5, QString());
         tab_6 = new QWidget();
         tab_6->setObjectName(QString::fromUtf8("tab_6"));
         horizontalLayout_16 = new QHBoxLayout(tab_6);
@@ -565,7 +552,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 642, 17));
+        menubar->setGeometry(QRect(0, 0, 642, 18));
         menuFile_F = new QMenu(menubar);
         menuFile_F->setObjectName(QString::fromUtf8("menuFile_F"));
         menuHelp_H = new QMenu(menubar);
@@ -586,7 +573,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tabWidget->setCurrentIndex(3);
+        tabWidget->setCurrentIndex(4);
         btn_ok->setDefault(false);
 
 
@@ -624,7 +611,6 @@ public:
         lbl_sent->setText(QString());
         lbl_trans->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(tab_4), QCoreApplication::translate("MainWindow", "Complete", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(tab_5), QCoreApplication::translate("MainWindow", "Complete Statistics", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_6), QCoreApplication::translate("MainWindow", "History", nullptr));
         menuFile_F->setTitle(QCoreApplication::translate("MainWindow", "File(&F)", nullptr));
         menuHelp_H->setTitle(QCoreApplication::translate("MainWindow", "Help(&H)", nullptr));

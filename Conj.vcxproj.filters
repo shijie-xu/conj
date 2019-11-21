@@ -66,19 +66,12 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    
-    
-    
-    
     <CustomBuild Include="debug\moc_predefs.h.cbt">
       <Filter>Generated Files</Filter>
     </CustomBuild>
     <CustomBuild Include="release\moc_predefs.h.cbt">
       <Filter>Generated Files</Filter>
     </CustomBuild>
-    
-    
-    
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="mainwindow.ui">
@@ -86,14 +79,8 @@
     </QtUic>
   </ItemGroup>
   <ItemGroup>
-    <None Include="play.png">
-      <Filter>Resource Files</Filter>
-    </None>
     <QtRcc Include="src.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
-    <None Include="trash.png">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

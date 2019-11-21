@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>trash.png</file>
-        <file>play.png</file>
+        <file>correct.wav</file>
+        <file>incorrect.wav</file>
     </qresource>
 </RCC>

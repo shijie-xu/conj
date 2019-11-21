@@ -40,7 +40,7 @@ QString Conjugate::get(QString post)
 void Conjugate::unsync_get(QString post)
 {
     emit TranslationComplete(get(post));
-    finishedWork();
+    //finishedWork();
 }
 
 void Conjugate::set_trans_url(QString url)
