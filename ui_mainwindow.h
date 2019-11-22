@@ -109,7 +109,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(642, 376);
+        MainWindow->resize(612, 301);
         actionSettings_S = new QAction(MainWindow);
         actionSettings_S->setObjectName(QString::fromUtf8("actionSettings_S"));
         actionExit_X = new QAction(MainWindow);
@@ -148,6 +148,20 @@ public:
 
         btn_play_word = new QPushButton(tab);
         btn_play_word->setObjectName(QString::fromUtf8("btn_play_word"));
+        btn_play_word->setStyleSheet(QString::fromUtf8("QPushButton#btn_play_word {\n"
+"    background-color: rgb(255,255,240);\n"
+"    border-style: outset;\n"
+"    border-width: 2px;\n"
+"    border-radius: 10px;\n"
+"    border-color: rgb(107,142,35);\n"
+"    font: bold 14px;\n"
+"    min-width: 10em;\n"
+"    padding: 6px;\n"
+"}\n"
+"QPushButton#btn_play_word:pressed {\n"
+"    background-color: rgb(250,250,210);\n"
+"    border-style: inset;\n"
+"}"));
 
         horizontalLayout_2->addWidget(btn_play_word);
 
@@ -162,6 +176,10 @@ public:
         font.setFamily(QString::fromUtf8("Cascadia Code"));
         font.setPointSize(18);
         lbl_word->setFont(font);
+        lbl_word->setStyleSheet(QString::fromUtf8("QLabel#lbl_word {\n"
+"    background-color: rgb(	255,235,205);\n"
+"    border-radius: 15px;\n"
+"}"));
         lbl_word->setAlignment(Qt::AlignCenter);
 
         verticalLayout_2->addWidget(lbl_word);
@@ -182,6 +200,14 @@ public:
         le_input = new QLineEdit(tab);
         le_input->setObjectName(QString::fromUtf8("le_input"));
         le_input->setFont(font1);
+        le_input->setStyleSheet(QString::fromUtf8("QLineEdit#le_input {\n"
+"    border-style: inset;\n"
+"    border-width: 2px;\n"
+"    border-radius: 10px;\n"
+"    border-color: rgb(107,142,35);\n"
+"    padding: 4px;\n"
+"}\n"
+""));
 
         horizontalLayout->addWidget(le_input);
 
@@ -196,6 +222,18 @@ public:
 
         lst_history = new QListWidget(tab);
         lst_history->setObjectName(QString::fromUtf8("lst_history"));
+        lst_history->setStyleSheet(QString::fromUtf8("QListWidget#lst_history {\n"
+"    border-style: inset;\n"
+"    border-width: 2px;\n"
+"    border-radius: 10px;\n"
+"    border-color: rgb(107,142,35);\n"
+"    padding: 4px;\n"
+"}\n"
+"\n"
+"QListWidget::item:selected {\n"
+"	background: rgb(135,206,235);\n"
+"}\n"
+""));
 
         horizontalLayout_3->addWidget(lst_history);
 
@@ -552,7 +590,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 642, 18));
+        menubar->setGeometry(QRect(0, 0, 612, 18));
         menuFile_F = new QMenu(menubar);
         menuFile_F->setObjectName(QString::fromUtf8("menuFile_F"));
         menuHelp_H = new QMenu(menubar);
@@ -573,7 +611,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tabWidget->setCurrentIndex(4);
+        tabWidget->setCurrentIndex(0);
         btn_ok->setDefault(false);
 
 

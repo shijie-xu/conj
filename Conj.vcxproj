@@ -68,7 +68,7 @@
   <PropertyGroup>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Conj</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">conj</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\</OutDir>
@@ -235,6 +235,16 @@
   <ItemGroup>
     <QtRcc Include="src.qrc">
     </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Conj.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="logo.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

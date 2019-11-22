@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>correct.wav</file>
         <file>incorrect.wav</file>
+        <file>logo.png</file>
+        <file>logo.ico</file>
     </qresource>
 </RCC>

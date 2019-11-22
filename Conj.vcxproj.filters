@@ -83,4 +83,18 @@
       <Filter>Resource Files</Filter>
     </QtRcc>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Conj.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="logo.ico" />
+  </ItemGroup>
 </Project>

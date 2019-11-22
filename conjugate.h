@@ -28,7 +28,6 @@ private:
 
 signals:
     void TranslationComplete(QString trans);
-    void finishedWork();
 public slots:
     void doWork(){
         unsync_get(trans_words);

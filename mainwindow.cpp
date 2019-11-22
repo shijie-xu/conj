@@ -1004,17 +1004,27 @@ void MainWindow::single_sentence_complete_quiz()
 		int k = QRandomGenerator::global()->bounded(this->sent_list.count());
 		this->quiz_sent = this->sent_list.at(k).trimmed();
 		QList<QString> words = this->quiz_sent.split(" ");
+
 		// Shuffle words sequence
 		std::random_shuffle(words.begin(), words.end());
+
 		// Calclate difficulty
 		int diff = 0;
 		for (QList<QString>::iterator it = words.begin(); it != words.end(); it++) {
 			diff += this->words_freq[*it];
 		}
+		// Check frequency
 		if (1000.0 * diff / this->total_words < avg_freq) continue;
-		// Show words in list view
+		// Check length
 		if (words.count() < min_length || words.count() > max_length)continue;
-		// qDebug () << words;
+		// Chech duplication
+		int threshold = 5;
+		if (sentence_right_table.contains(this->quiz_sent) &&
+			sentence_right_table[this->quiz_sent] > threshold) {
+			continue;
+		}
+
+		// Show words in list view
 		for (int i = 0; i < words.count(); ++i) {
 			QString w = words.at(i);
 			if (!w.isEmpty()) {
@@ -1047,6 +1057,7 @@ void MainWindow::single_sentence_complete_quiz()
 	ui->btn_ok->setEnabled(false);
 }
 
+// Check correction of sentences
 void MainWindow::on_btn_ok_clicked()
 {
 	this->sent_complete++;
@@ -1063,6 +1074,12 @@ void MainWindow::on_btn_ok_clicked()
 		this->lbl_status->setText("<font color=\"green\">OK.\t</font>");
 		this->right_sent_complete++;
 		QSound::play(":/correct.wav");
+		if (sentence_right_table.contains(this->quiz_sent)) {
+			sentence_right_table[this->quiz_sent]++;
+		}
+		else {
+			sentence_right_table[this->quiz_sent] = 1;
+		}
 	}
 	else {
 		int k;
@@ -1076,7 +1093,7 @@ void MainWindow::on_btn_ok_clicked()
 		QSound::play(":/incorrect.wav");
 	}
 
-	// new quiz
+	// setup new quiz
 	double alpha = 0.8;
 	ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2/%3%/%4)")
 		.arg(this->right_sent_complete)
@@ -1172,6 +1189,9 @@ void MainWindow::on_lst_words_itemClicked(QListWidgetItem* item)
 	ui->te_sentence->insertHtml(tr("<span style=\"background-color: %1\">%2</span>")
 		.arg(colors.at(ch))
 		.arg(cur_word) + " ");
+	if (ui->te_sentence->toPlainText().trimmed() == this->quiz_sent) {
+		on_btn_ok_clicked();
+	}
 }
 
 void MainWindow::on_btn_play_clicked()

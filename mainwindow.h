@@ -195,6 +195,7 @@ private:
 	int exsisted_queries_cout;
 	int cur_queries_count;
 	int words_count_in_sentence;
+	QMap<QString, int> sentence_right_table;
 };
 
 #endif // MAINWINDOW_H

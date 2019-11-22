@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>642</width>
-    <height>376</height>
+    <width>612</width>
+    <height>301</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -43,6 +43,22 @@
               </item>
               <item>
                <widget class="QPushButton" name="btn_play_word">
+                <property name="styleSheet">
+                 <string notr="true">QPushButton#btn_play_word {
+    background-color: rgb(255,255,240);
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: rgb(107,142,35);
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+}
+QPushButton#btn_play_word:pressed {
+    background-color: rgb(250,250,210);
+    border-style: inset;
+}</string>
+                </property>
                 <property name="text">
                  <string>Play</string>
                 </property>
@@ -59,6 +75,12 @@
                   <family>Cascadia Code</family>
                   <pointsize>18</pointsize>
                  </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel#lbl_word {
+    background-color: rgb(	255,235,205);
+    border-radius: 15px;
+}</string>
                 </property>
                 <property name="text">
                  <string>TextLabel</string>
@@ -95,6 +117,16 @@
                     <bold>false</bold>
                    </font>
                   </property>
+                  <property name="styleSheet">
+                   <string notr="true">QLineEdit#le_input {
+    border-style: inset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: rgb(107,142,35);
+    padding: 4px;
+}
+</string>
+                  </property>
                  </widget>
                 </item>
                </layout>
@@ -104,7 +136,22 @@
            </layout>
           </item>
           <item>
-           <widget class="QListWidget" name="lst_history"/>
+           <widget class="QListWidget" name="lst_history">
+            <property name="styleSheet">
+             <string notr="true">QListWidget#lst_history {
+    border-style: inset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: rgb(107,142,35);
+    padding: 4px;
+}
+
+QListWidget::item:selected {
+	background: rgb(135,206,235);
+}
+</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -576,7 +623,7 @@ QPushButton#btn_clear:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>642</width>
+     <width>612</width>
      <height>18</height>
     </rect>
    </property>
