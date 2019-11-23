@@ -13,7 +13,6 @@
 #include <QtWebEngineWidgets/QWebEngineView>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
@@ -109,7 +108,6 @@ public:
     QMenu *menuFile_F;
     QMenu *menuHelp_H;
     QStatusBar *statusbar;
-    QButtonGroup *buttonGroup;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -646,7 +644,7 @@ public:
         lbl_word->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         lbl_tense->setText(QCoreApplication::translate("MainWindow", "(pr\303\251sent): ", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab), QCoreApplication::translate("MainWindow", "Conj.", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(tab_words), QCoreApplication::translate("MainWindow", "Words", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tab_words), QCoreApplication::translate("MainWindow", "Wiki", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_3), QCoreApplication::translate("MainWindow", "Prog.", nullptr));
         chk_show_pronoms->setText(QCoreApplication::translate("MainWindow", "Show/Hide Pronoms Table", nullptr));
         lbl_pronom_pos->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));

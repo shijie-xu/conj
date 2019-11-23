@@ -158,7 +158,7 @@ QListWidget::item:selected {
       </widget>
       <widget class="QWidget" name="tab_words">
        <attribute name="title">
-        <string>Words</string>
+        <string>Wiki</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_15">
         <item>
@@ -704,7 +704,4 @@ QPushButton#btn_clear:pressed {
  </customwidgets>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="buttonGroup"/>
- </buttongroups>
 </ui>
