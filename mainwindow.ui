@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>612</width>
+    <width>370</width>
     <height>301</height>
    </rect>
   </property>
@@ -18,11 +18,11 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
-        <string>Conjugation</string>
+        <string>Conj.</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
@@ -51,7 +51,6 @@
     border-radius: 10px;
     border-color: rgb(107,142,35);
     font: bold 14px;
-    min-width: 10em;
     padding: 6px;
 }
 QPushButton#btn_play_word:pressed {
@@ -157,9 +156,25 @@ QListWidget::item:selected {
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_words">
+       <attribute name="title">
+        <string>Words</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_15">
+        <item>
+         <widget class="QWebEngineView" name="webEngineView">
+          <property name="url">
+           <url>
+            <string>about:blank</string>
+           </url>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
-        <string>Statistics</string>
+        <string>Prog.</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
@@ -460,7 +475,6 @@ QListWidget::item:selected {
     border-radius: 10px;
     border-color: rgb(107,142,35);
     font: bold 14px;
-    min-width: 10em;
     padding: 6px;
 }
 QPushButton#btn_ok:pressed {
@@ -494,7 +508,6 @@ QPushButton#btn_ok:pressed {
     border-radius: 10px;
     border-color: rgb(107,142,35);
     font: bold 14px;
-    min-width: 10em;
     padding: 6px;
 }
 QPushButton#btn_play:pressed {
@@ -517,7 +530,6 @@ QPushButton#btn_play:pressed {
     border-radius: 10px;
     border-color: rgb(107,142,35);
     font: bold 14px;
-    min-width: 10em;
     padding: 6px;
 }
 QPushButton#btn_clear:pressed {
@@ -623,7 +635,7 @@ QPushButton#btn_clear:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>612</width>
+     <width>370</width>
      <height>18</height>
     </rect>
    </property>
@@ -683,6 +695,16 @@ QPushButton#btn_clear:pressed {
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebEngineView</class>
+   <extends>QWidget</extends>
+   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+ </buttongroups>
 </ui>

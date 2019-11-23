@@ -10,8 +10,10 @@
 #define UI_MAINWINDOW_H
 
 #include <QtCore/QVariant>
+#include <QtWebEngineWidgets/QWebEngineView>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
@@ -58,6 +60,9 @@ public:
     QLabel *lbl_tense;
     QLineEdit *le_input;
     QListWidget *lst_history;
+    QWidget *tab_words;
+    QHBoxLayout *horizontalLayout_15;
+    QWebEngineView *webEngineView;
     QWidget *tab_3;
     QHBoxLayout *horizontalLayout_5;
     QHBoxLayout *hb_sta;
@@ -104,12 +109,13 @@ public:
     QMenu *menuFile_F;
     QMenu *menuHelp_H;
     QStatusBar *statusbar;
+    QButtonGroup *buttonGroup;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(612, 301);
+        MainWindow->resize(370, 301);
         actionSettings_S = new QAction(MainWindow);
         actionSettings_S->setObjectName(QString::fromUtf8("actionSettings_S"));
         actionExit_X = new QAction(MainWindow);
@@ -155,7 +161,6 @@ public:
 "    border-radius: 10px;\n"
 "    border-color: rgb(107,142,35);\n"
 "    font: bold 14px;\n"
-"    min-width: 10em;\n"
 "    padding: 6px;\n"
 "}\n"
 "QPushButton#btn_play_word:pressed {\n"
@@ -241,6 +246,17 @@ public:
         horizontalLayout_4->addLayout(horizontalLayout_3);
 
         tabWidget->addTab(tab, QString());
+        tab_words = new QWidget();
+        tab_words->setObjectName(QString::fromUtf8("tab_words"));
+        horizontalLayout_15 = new QHBoxLayout(tab_words);
+        horizontalLayout_15->setObjectName(QString::fromUtf8("horizontalLayout_15"));
+        webEngineView = new QWebEngineView(tab_words);
+        webEngineView->setObjectName(QString::fromUtf8("webEngineView"));
+        webEngineView->setUrl(QUrl(QString::fromUtf8("about:blank")));
+
+        horizontalLayout_15->addWidget(webEngineView);
+
+        tabWidget->addTab(tab_words, QString());
         tab_3 = new QWidget();
         tab_3->setObjectName(QString::fromUtf8("tab_3"));
         horizontalLayout_5 = new QHBoxLayout(tab_3);
@@ -472,7 +488,6 @@ public:
 "    border-radius: 10px;\n"
 "    border-color: rgb(107,142,35);\n"
 "    font: bold 14px;\n"
-"    min-width: 10em;\n"
 "    padding: 6px;\n"
 "}\n"
 "QPushButton#btn_ok:pressed {\n"
@@ -492,7 +507,6 @@ public:
 "    border-radius: 10px;\n"
 "    border-color: rgb(107,142,35);\n"
 "    font: bold 14px;\n"
-"    min-width: 10em;\n"
 "    padding: 6px;\n"
 "}\n"
 "QPushButton#btn_play:pressed {\n"
@@ -511,7 +525,6 @@ public:
 "    border-radius: 10px;\n"
 "    border-color: rgb(107,142,35);\n"
 "    font: bold 14px;\n"
-"    min-width: 10em;\n"
 "    padding: 6px;\n"
 "}\n"
 "QPushButton#btn_clear:pressed {\n"
@@ -590,7 +603,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 612, 18));
+        menubar->setGeometry(QRect(0, 0, 370, 18));
         menuFile_F = new QMenu(menubar);
         menuFile_F->setObjectName(QString::fromUtf8("menuFile_F"));
         menuHelp_H = new QMenu(menubar);
@@ -611,7 +624,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(1);
         btn_ok->setDefault(false);
 
 
@@ -632,8 +645,9 @@ public:
         btn_play_word->setText(QCoreApplication::translate("MainWindow", "Play", nullptr));
         lbl_word->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         lbl_tense->setText(QCoreApplication::translate("MainWindow", "(pr\303\251sent): ", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(tab), QCoreApplication::translate("MainWindow", "Conjugation", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(tab_3), QCoreApplication::translate("MainWindow", "Statistics", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tab), QCoreApplication::translate("MainWindow", "Conj.", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tab_words), QCoreApplication::translate("MainWindow", "Words", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tab_3), QCoreApplication::translate("MainWindow", "Prog.", nullptr));
         chk_show_pronoms->setText(QCoreApplication::translate("MainWindow", "Show/Hide Pronoms Table", nullptr));
         lbl_pronom_pos->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QCoreApplication::translate("MainWindow", "Pronom", nullptr));

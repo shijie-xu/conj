@@ -538,6 +538,7 @@ QString MainWindow::compiled_day()
 QString MainWindow::this_day()
 {
 	QDateTime local(QDateTime::currentDateTime());
+	qDebug() << local.toString("yyyy-MM-dd");
 	return local.toString("yyyy-MM-dd");
 }
 
@@ -561,9 +562,13 @@ void MainWindow::closeEvent(QCloseEvent*)
 	if (!db.open()) qDebug() << db.lastError();
 	QSqlQuery query;
 	QString today = this_day();
+	query.exec(tr("insert into completeHistory values(\"%1\",%2)")
+		.arg(today)
+		.arg(this->exsisted_queries_cout + this->cur_queries_count));
 	query.exec(tr("update completeHistory set requests = %1 where date = \"%2\"")
 		.arg(this->exsisted_queries_cout + this->cur_queries_count)
 		.arg(today));
+	db.close();
 }
 
 void MainWindow::on_actionSettings_S_triggered()
@@ -915,8 +920,10 @@ void MainWindow::on_le_input_returnPressed()
 void MainWindow::on_lst_history_itemClicked(QListWidgetItem* item)
 {
 	QString search_url = "http://en.wiktionary.org/wiki/" + item->text().split("\t").first();
-	QMessageBox::information(this, "Wikitionary",
-		tr("The author just HATE MSVC kit and no QtWebView module can be compiled with on Windows.<br>Please click <a href=\"%1\">%2</a>").arg(search_url).arg(search_url));
+	ui->webEngineView->load(search_url);
+	ui->tabWidget->setCurrentIndex(1);
+	//QMessageBox::information(this, "Wikitionary",
+	//	tr("The author just HATE MSVC kit and no QtWebView module can be compiled with on Windows.<br>Please click <a href=\"%1\">%2</a>").arg(search_url).arg(search_url));
 }
 
 void MainWindow::on_actionNew_Quiz_N_triggered()
@@ -1001,7 +1008,8 @@ void MainWindow::single_sentence_complete_quiz()
 	ui->te_sentence->clear();
 	bool succ = false;
 	do {
-		int k = QRandomGenerator::global()->bounded(this->sent_list.count());
+		//int k = QRandomGenerator::global()->bounded(this->sent_list.count());
+		int k = rand() % (this->sent_list.count());
 		this->quiz_sent = this->sent_list.at(k).trimmed();
 		QList<QString> words = this->quiz_sent.split(" ");
 

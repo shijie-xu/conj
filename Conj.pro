@@ -1,4 +1,4 @@
-QT       += core gui charts network texttospeech sql
+QT       += core gui charts network texttospeech sql webenginewidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
