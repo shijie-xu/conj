@@ -20,6 +20,8 @@ public:
     void setup(QString interface);
     QString conj(QString verb);
     QString get(QString post);
+
+	QString sync_get(QString post);
     void unsync_get(QString post);
     void set_trans_url(QString url);
 private:

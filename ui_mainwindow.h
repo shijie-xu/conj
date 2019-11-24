@@ -79,13 +79,15 @@ public:
     QHBoxLayout *horizontalLayout_13;
     QListWidget *lst_words;
     QVBoxLayout *verticalLayout_7;
-    QVBoxLayout *verticalLayout_5;
     QHBoxLayout *horizontalLayout_12;
+    QLabel *lbl_hint;
+    QVBoxLayout *verticalLayout_5;
     QLabel *lbl_words;
-    QLabel *lbl_complete_info;
     QHBoxLayout *horizontalLayout_9;
     QLabel *label;
     QSpinBox *spin_freq;
+    QLabel *label_5;
+    QSpinBox *spin_threshold;
     QHBoxLayout *horizontalLayout_10;
     QLabel *label_2;
     QSpinBox *spin_min;
@@ -113,7 +115,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(370, 301);
+        MainWindow->resize(442, 301);
         actionSettings_S = new QAction(MainWindow);
         actionSettings_S->setObjectName(QString::fromUtf8("actionSettings_S"));
         actionExit_X = new QAction(MainWindow);
@@ -337,10 +339,26 @@ public:
 
         verticalLayout_7 = new QVBoxLayout();
         verticalLayout_7->setObjectName(QString::fromUtf8("verticalLayout_7"));
-        verticalLayout_5 = new QVBoxLayout();
-        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
         horizontalLayout_12 = new QHBoxLayout();
         horizontalLayout_12->setObjectName(QString::fromUtf8("horizontalLayout_12"));
+        lbl_hint = new QLabel(tab_4);
+        lbl_hint->setObjectName(QString::fromUtf8("lbl_hint"));
+        QFont font4;
+        font4.setFamily(QString::fromUtf8("Cascadia Code"));
+        font4.setPointSize(10);
+        lbl_hint->setFont(font4);
+        lbl_hint->setStyleSheet(QString::fromUtf8("QLabel#lbl_hint {\n"
+"    background-color: rgb(255,255,240);\n"
+"    border-radius: 4px;\n"
+"    padding: 3px;\n"
+"}"));
+        lbl_hint->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
+        lbl_hint->setWordWrap(true);
+
+        horizontalLayout_12->addWidget(lbl_hint);
+
+        verticalLayout_5 = new QVBoxLayout();
+        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
         lbl_words = new QLabel(tab_4);
         lbl_words->setObjectName(QString::fromUtf8("lbl_words"));
         lbl_words->setFont(font3);
@@ -349,20 +367,7 @@ public:
 "    border-radius: 5px;\n"
 "}"));
 
-        horizontalLayout_12->addWidget(lbl_words);
-
-        lbl_complete_info = new QLabel(tab_4);
-        lbl_complete_info->setObjectName(QString::fromUtf8("lbl_complete_info"));
-        QFont font4;
-        font4.setFamily(QString::fromUtf8("Cascadia Code"));
-        font4.setPointSize(10);
-        lbl_complete_info->setFont(font4);
-        lbl_complete_info->setStyleSheet(QString::fromUtf8(""));
-
-        horizontalLayout_12->addWidget(lbl_complete_info);
-
-
-        verticalLayout_5->addLayout(horizontalLayout_12);
+        verticalLayout_5->addWidget(lbl_words);
 
         horizontalLayout_9 = new QHBoxLayout();
         horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
@@ -386,6 +391,28 @@ public:
         spin_freq->setDisplayIntegerBase(10);
 
         horizontalLayout_9->addWidget(spin_freq);
+
+        label_5 = new QLabel(tab_4);
+        label_5->setObjectName(QString::fromUtf8("label_5"));
+        label_5->setFont(font4);
+
+        horizontalLayout_9->addWidget(label_5);
+
+        spin_threshold = new QSpinBox(tab_4);
+        spin_threshold->setObjectName(QString::fromUtf8("spin_threshold"));
+        spin_threshold->setStyleSheet(QString::fromUtf8("QSpinBox#spin_threshold {\n"
+"    background-color: rgb(255,255,240);\n"
+"    border-style: inset;\n"
+"    border-radius: 5px;\n"
+"    border-width: 1px;\n"
+"    border-color: rgb(107,142,35);\n"
+"}"));
+        spin_threshold->setMinimum(3);
+        spin_threshold->setMaximum(20);
+        spin_threshold->setValue(3);
+        spin_threshold->setDisplayIntegerBase(10);
+
+        horizontalLayout_9->addWidget(spin_threshold);
 
 
         verticalLayout_5->addLayout(horizontalLayout_9);
@@ -442,7 +469,10 @@ public:
         verticalLayout_5->addLayout(horizontalLayout_11);
 
 
-        verticalLayout_7->addLayout(verticalLayout_5);
+        horizontalLayout_12->addLayout(verticalLayout_5);
+
+
+        verticalLayout_7->addLayout(horizontalLayout_12);
 
         te_sentence = new QTextEdit(tab_4);
         te_sentence->setObjectName(QString::fromUtf8("te_sentence"));
@@ -601,7 +631,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 370, 18));
+        menubar->setGeometry(QRect(0, 0, 442, 18));
         menuFile_F = new QMenu(menubar);
         menuFile_F->setObjectName(QString::fromUtf8("menuFile_F"));
         menuHelp_H = new QMenu(menubar);
@@ -622,7 +652,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(4);
         btn_ok->setDefault(false);
 
 
@@ -649,9 +679,10 @@ public:
         chk_show_pronoms->setText(QCoreApplication::translate("MainWindow", "Show/Hide Pronoms Table", nullptr));
         lbl_pronom_pos->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QCoreApplication::translate("MainWindow", "Pronom", nullptr));
+        lbl_hint->setText(QCoreApplication::translate("MainWindow", "No hint", nullptr));
         lbl_words->setText(QCoreApplication::translate("MainWindow", "Complete", nullptr));
-        lbl_complete_info->setText(QString());
         label->setText(QCoreApplication::translate("MainWindow", "Avg freqency of words", nullptr));
+        label_5->setText(QCoreApplication::translate("MainWindow", "threshold", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "Min sentence length", nullptr));
         label_3->setText(QCoreApplication::translate("MainWindow", "Max sentence length", nullptr));
         btn_ok->setText(QCoreApplication::translate("MainWindow", "Check", nullptr));

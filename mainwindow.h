@@ -17,6 +17,7 @@
 #include <QVariantMap>
 #include <QTextToSpeech>
 #include <QVoice>
+#include <QSqlDatabase>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -48,6 +49,13 @@ public:
 	qint64 string_hash(QString str);
 	QString compiled_day();
 	QString this_day();
+
+	// Auxiliary function for sentences complete
+	int read_learned_times_from_db(QString sentence);
+	void update_learned_times_into_db(QString sentence, int times);
+	QString read_word_description_from_db(QString word);
+	void update_words_dictionary_into_db(QString word, QString description);
+	void update_words_hint(QString word);
 
 protected:
 	void closeEvent(QCloseEvent* event);
@@ -183,19 +191,19 @@ private:
 	QList<QString> prouns;
 	bool bshow;
 
-	QList<QString> sent_list;
-	QString quiz_sent;
-	QString quiz_trans;
+	QList<QString> sentence_list;
+	QString quiz_sentence;
+	QString quiz_translation;
+	int quiz_sentence_learned_times;
 
 	QMap<QString, int> words_freq;
 	qint64 total_words;
-	QList<QString> words_learned;
 	Conjugate* unsync_conj;
 	QThread* thrd;
 	int exsisted_queries_cout;
 	int cur_queries_count;
-	int words_count_in_sentence;
-	QMap<QString, int> sentence_right_table;
+
+	QSqlDatabase db;
 };
 
 #endif // MAINWINDOW_H

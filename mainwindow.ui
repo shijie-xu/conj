@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>370</width>
+    <width>442</width>
     <height>301</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -274,9 +274,35 @@ QListWidget::item:selected {
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_7">
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_5">
+               <layout class="QHBoxLayout" name="horizontalLayout_12">
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_12">
+                 <widget class="QLabel" name="lbl_hint">
+                  <property name="font">
+                   <font>
+                    <family>Cascadia Code</family>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QLabel#lbl_hint {
+    background-color: rgb(255,255,240);
+    border-radius: 4px;
+    padding: 3px;
+}</string>
+                  </property>
+                  <property name="text">
+                   <string>No hint</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                  </property>
+                  <property name="wordWrap">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_5">
                   <item>
                    <widget class="QLabel" name="lbl_words">
                     <property name="font">
@@ -297,130 +323,152 @@ QListWidget::item:selected {
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="lbl_complete_info">
-                    <property name="font">
-                     <font>
-                      <family>Cascadia Code</family>
-                      <pointsize>10</pointsize>
-                     </font>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true"/>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_9">
-                  <item>
-                   <widget class="QLabel" name="label">
-                    <property name="font">
-                     <font>
-                      <family>Cascadia Code</family>
-                      <pointsize>10</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Avg freqency of words</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="spin_freq">
-                    <property name="styleSheet">
-                     <string notr="true">QSpinBox#spin_freq {
+                   <layout class="QHBoxLayout" name="horizontalLayout_9">
+                    <item>
+                     <widget class="QLabel" name="label">
+                      <property name="font">
+                       <font>
+                        <family>Cascadia Code</family>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Avg freqency of words</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QSpinBox" name="spin_freq">
+                      <property name="styleSheet">
+                       <string notr="true">QSpinBox#spin_freq {
     background-color: rgb(255,255,240);
     border-style: inset;
     border-radius: 5px;
     border-width: 1px;
     border-color: rgb(107,142,35);
 }</string>
-                    </property>
-                    <property name="maximum">
-                     <number>100000</number>
-                    </property>
-                    <property name="value">
-                     <number>50</number>
-                    </property>
-                    <property name="displayIntegerBase">
-                     <number>10</number>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_10">
-                  <item>
-                   <widget class="QLabel" name="label_2">
-                    <property name="font">
-                     <font>
-                      <family>Cascadia Code</family>
-                      <pointsize>10</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Min sentence length</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="spin_min">
-                    <property name="styleSheet">
-                     <string notr="true">QSpinBox#spin_min {
+                      </property>
+                      <property name="maximum">
+                       <number>100000</number>
+                      </property>
+                      <property name="value">
+                       <number>50</number>
+                      </property>
+                      <property name="displayIntegerBase">
+                       <number>10</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="label_5">
+                      <property name="font">
+                       <font>
+                        <family>Cascadia Code</family>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>threshold</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QSpinBox" name="spin_threshold">
+                      <property name="styleSheet">
+                       <string notr="true">QSpinBox#spin_threshold {
     background-color: rgb(255,255,240);
     border-style: inset;
     border-radius: 5px;
     border-width: 1px;
     border-color: rgb(107,142,35);
 }</string>
-                    </property>
-                    <property name="value">
-                     <number>3</number>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_11">
-                  <item>
-                   <widget class="QLabel" name="label_3">
-                    <property name="font">
-                     <font>
-                      <family>Cascadia Code</family>
-                      <pointsize>10</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Max sentence length</string>
-                    </property>
-                   </widget>
+                      </property>
+                      <property name="minimum">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <number>20</number>
+                      </property>
+                      <property name="value">
+                       <number>3</number>
+                      </property>
+                      <property name="displayIntegerBase">
+                       <number>10</number>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="spin_max">
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                     </font>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true">QSpinBox#spin_max {
+                   <layout class="QHBoxLayout" name="horizontalLayout_10">
+                    <item>
+                     <widget class="QLabel" name="label_2">
+                      <property name="font">
+                       <font>
+                        <family>Cascadia Code</family>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Min sentence length</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QSpinBox" name="spin_min">
+                      <property name="styleSheet">
+                       <string notr="true">QSpinBox#spin_min {
     background-color: rgb(255,255,240);
     border-style: inset;
     border-radius: 5px;
     border-width: 1px;
     border-color: rgb(107,142,35);
 }</string>
-                    </property>
-                    <property name="value">
-                     <number>5</number>
-                    </property>
-                   </widget>
+                      </property>
+                      <property name="value">
+                       <number>3</number>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_11">
+                    <item>
+                     <widget class="QLabel" name="label_3">
+                      <property name="font">
+                       <font>
+                        <family>Cascadia Code</family>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Max sentence length</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QSpinBox" name="spin_max">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">QSpinBox#spin_max {
+    background-color: rgb(255,255,240);
+    border-style: inset;
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: rgb(107,142,35);
+}</string>
+                      </property>
+                      <property name="value">
+                       <number>5</number>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </item>
                  </layout>
                 </item>
@@ -635,7 +683,7 @@ QPushButton#btn_clear:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>370</width>
+     <width>442</width>
      <height>18</height>
     </rect>
    </property>

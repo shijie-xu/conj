@@ -37,6 +37,11 @@ QString Conjugate::get(QString post)
     return result;
 }
 
+QString Conjugate::sync_get(QString post)
+{
+	return get(post);
+}
+
 void Conjugate::unsync_get(QString post)
 {
     emit TranslationComplete(get(post));

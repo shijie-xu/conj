@@ -171,6 +171,7 @@ MainWindow::MainWindow(QWidget* parent)
 	// Set conjugator
 	this->conjugator.setup("http://verbe.cc/vcfr/conjugate/fr/");
 	this->cur_queries_count = 0;
+	this->thrd = NULL;
 
 	// Init quiz
 	on_actionNew_Quiz_N_triggered();
@@ -186,12 +187,21 @@ MainWindow::MainWindow(QWidget* parent)
 	this->progress->setFixedWidth(300);
 	ui->lst_words->setFixedWidth(300);
 	ui->lst_words->setMinimumHeight(200);
+	ui->lbl_hint->setMinimumWidth(200);
 	ui->btn_ok->setFixedSize(75, 80);
 	ui->btn_play->setFixedSize(50, 80);
 	ui->btn_clear->setFixedSize(50, 80);
 	ui->lbl_origin->setWordWrap(true);
 	ui->lbl_sent->setWordWrap(true);
 	ui->lbl_trans->setWordWrap(true);
+
+	// Connect to database
+	this->db = QSqlDatabase::addDatabase("QSQLITE");
+	db.setDatabaseName("history.db");
+	if (!db.open()) qDebug() << db.lastError();
+
+	// Update learned times from db
+	// read_learned_times_from_db("dit le petit prince");
 
 	// Update tabs
 	update_tab_conj_history();
@@ -208,8 +218,6 @@ MainWindow::MainWindow(QWidget* parent)
 		.arg(this->sent_complete)
 		.arg(100 * this->right_sent_complete / this->sent_complete)
 		.arg((int)((alpha * this->sent_complete - this->right_sent_complete) / (1 - alpha))));
-	ui->lbl_complete_info->setText(
-		"Press q to clear, w to check.");
 	this->total_words = 0;
 	calc_words_freq("src.txt");
 	QFile sourceTxt("src.txt");
@@ -217,7 +225,7 @@ MainWindow::MainWindow(QWidget* parent)
 	QTextStream tsSource(&sourceTxt);
 	QString content = tsSource.readAll();
 	QRegExp rx("\\.|\\?|\\n|\\…|\\:|\\;|\\,|\\!|\\*|\\(|\\)|\\«|\\»|\\–|[0-9]");
-	this->sent_list = content.split(rx);
+	this->sentence_list = content.split(rx);
 	single_sentence_complete_quiz();
 }
 
@@ -378,13 +386,11 @@ void MainWindow::update_tab_sentence_complete_history()
 void MainWindow::update_tab_sentence_complete_history_by_day()
 {
 	// Connect to the database
-	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-	db.setDatabaseName("history.db");
-	if (!db.open()) qDebug() << db.lastError();
 	QSqlQuery query;
 	if (!query.exec("create table completeHistory(date text primary key, requests int)")) {
 		qDebug() << query.lastError();
 	}
+
 	// Query records;
 	QString today = QLocale("en_US").toDate(QString(__DATE__).simplified(), tr("MMM d yyyy")).toString("yyyy-MM-d");
 	query.exec(tr("select * from completeHistory where date=\"%1\"").arg(today));
@@ -397,7 +403,6 @@ void MainWindow::update_tab_sentence_complete_history_by_day()
 		*hist_set << query.value(1).toInt();
 		series->append(hist_set);
 	}
-	db.close();
 
 	QChart* chart = new QChart();
 	chart->addSeries(series);
@@ -538,8 +543,81 @@ QString MainWindow::compiled_day()
 QString MainWindow::this_day()
 {
 	QDateTime local(QDateTime::currentDateTime());
-	qDebug() << local.toString("yyyy-MM-dd");
 	return local.toString("yyyy-MM-dd");
+}
+
+int MainWindow::read_learned_times_from_db(QString sentence)
+{
+	QSqlQuery query;
+	// Create table
+	//query.exec("create table sentence_times(sentence text primary key, times int)");
+
+	// We do NOT read the whole database when initialize, otherwise, read in single quiz
+	query.exec(tr("select * from sentence_times where sentence=\"%1\"").arg(sentence));
+	if (query.next()) {
+		return query.value(1).toInt();
+	}
+	return 0;
+}
+
+void MainWindow::update_learned_times_into_db(QString sentence, int times)
+{
+	QSqlQuery query;
+	// try to insert
+	query.exec(tr("insert into sentence_times values(\"%1\",%2)")
+		.arg(sentence)
+		.arg(times));
+	// update
+	query.exec(tr("update sentence_times set times=%1 where sentence=\"%2\"")
+		.arg(times)
+		.arg(sentence));
+}
+
+QString MainWindow::read_word_description_from_db(QString word)
+{
+	QSqlQuery query;
+	query.exec(tr("select * from dictionary where word=\"%1\"")
+		.arg(word.toLower()));
+	if (query.next()) return query.value(1).toString();
+	return "<NaN>";
+}
+
+void MainWindow::update_words_dictionary_into_db(QString word, QString description)
+{
+	// try to insert
+	QSqlQuery query;
+	query.exec(tr("insert into dictionary values(\"%1\",\"%2\")")
+		.arg(word.toLower())
+		.arg(description));
+}
+
+void MainWindow::update_words_hint(QString word)
+{
+	int word_threshold = 50;
+	// Check frequency
+	if (this->words_freq.contains(word) &&
+		this->words_freq[word] < word_threshold) {
+		// show hint for less-use word
+		// check if existed in database
+		QString desp = read_word_description_from_db(word);
+		if (desp == "<NaN>") {
+			// fetch from internet and update to dictionary
+			QString url = tr("https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20191116T145524Z.a006c2b4351496e9.677dfb7949c1d615bf5aab3d2071ddb45ee750f7&text=%1&lang=fr-%2")
+				.arg(word).arg("en");
+			QString res = conjugator.sync_get(url);
+			QString desp = "";
+
+			QJsonDocument doc = QJsonDocument::fromJson(res.toLocal8Bit().data());
+			QJsonObject obj = doc.object();
+			QJsonArray arr = obj.take("text").toArray();
+			// Check if response empty
+			if (arr.isEmpty()) return;
+			desp = arr.toVariantList().at(0).toString();
+			update_words_dictionary_into_db((word).toLower(), desp);
+		}
+		// show hint
+		ui->lbl_hint->setText(tr("<b>%1: </b>%2\n").arg(word, desp));
+	}
 }
 
 void MainWindow::closeEvent(QCloseEvent*)
@@ -557,9 +635,9 @@ void MainWindow::closeEvent(QCloseEvent*)
 	settings->setValue("right sentence complete", QVariant(this->right_sent_complete).toInt());
 
 	// update database
-	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-	db.setDatabaseName("history.db");
-	if (!db.open()) qDebug() << db.lastError();
+	//QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+	//db.setDatabaseName("history.db");
+	//if (!db.open()) qDebug() << db.lastError();
 	QSqlQuery query;
 	QString today = this_day();
 	query.exec(tr("insert into completeHistory values(\"%1\",%2)")
@@ -568,6 +646,7 @@ void MainWindow::closeEvent(QCloseEvent*)
 	query.exec(tr("update completeHistory set requests = %1 where date = \"%2\"")
 		.arg(this->exsisted_queries_cout + this->cur_queries_count)
 		.arg(today));
+	// close db when quit
 	db.close();
 }
 
@@ -1007,15 +1086,26 @@ void MainWindow::single_sentence_complete_quiz()
 	ui->lst_words->clear();
 	ui->te_sentence->clear();
 	bool succ = false;
+	int loops = 0;
 	do {
+		loops++;
+		//qDebug() << loops;
+
 		//int k = QRandomGenerator::global()->bounded(this->sent_list.count());
-		int k = rand() % (this->sent_list.count());
-		this->quiz_sent = this->sent_list.at(k).trimmed();
-		QList<QString> words = this->quiz_sent.split(" ");
+		int k = rand() % (this->sentence_list.count());
+		this->quiz_sentence = this->sentence_list.at(k).trimmed();
+		this->quiz_sentence_learned_times = read_learned_times_from_db(this->quiz_sentence.toLower());
 
-		// Shuffle words sequence
-		std::random_shuffle(words.begin(), words.end());
+		// Chech duplication
+		int threshold = ui->spin_threshold->value();
+		if ( this->quiz_sentence_learned_times >= threshold) {
+			continue;
+		}
 
+		QList<QString> words = this->quiz_sentence.split(" ");
+		//QVector<QStringRef> words_ref = this->quiz_sent.splitRef(" ");
+		// Check length
+		if (words.count() < min_length || words.count() > max_length)continue;
 		// Calclate difficulty
 		int diff = 0;
 		for (QList<QString>::iterator it = words.begin(); it != words.end(); it++) {
@@ -1023,14 +1113,10 @@ void MainWindow::single_sentence_complete_quiz()
 		}
 		// Check frequency
 		if (1000.0 * diff / this->total_words < avg_freq) continue;
-		// Check length
-		if (words.count() < min_length || words.count() > max_length)continue;
-		// Chech duplication
-		int threshold = 5;
-		if (sentence_right_table.contains(this->quiz_sent) &&
-			sentence_right_table[this->quiz_sent] > threshold) {
-			continue;
-		}
+
+		// Shuffle words sequence
+		//std::random_shuffle(words_ref.begin(), words_ref.end());
+		std::random_shuffle(words.begin(), words.end());
 
 		// Show words in list view
 		for (int i = 0; i < words.count(); ++i) {
@@ -1046,9 +1132,13 @@ void MainWindow::single_sentence_complete_quiz()
 	// Install openssl dll firstly: http://slproweb.com/products/Win32OpenSSL.html
 	// Then create yandex api
 	QString target_lang = "en";
-	QString url = tr("https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20191116T145524Z.a006c2b4351496e9.677dfb7949c1d615bf5aab3d2071ddb45ee750f7&text=%1&lang=fr-%2").arg(this->quiz_sent).arg(target_lang);
+	QString url = tr("https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20191116T145524Z.a006c2b4351496e9.677dfb7949c1d615bf5aab3d2071ddb45ee750f7&text=%1&lang=fr-%2").arg(this->quiz_sentence).arg(target_lang);
 	this->lbl_network->setText("Fetching translation...\t");
+
 	// Set unsync get
+	// Quit the last thread right now
+	if (thrd && thrd->isRunning())thrd->exit();
+
 	thrd = new QThread();
 
 	unsync_conj = new Conjugate();
@@ -1073,26 +1163,23 @@ void MainWindow::on_btn_ok_clicked()
 	ui->lbl_sent->clear();
 	ui->lbl_origin->clear();
 	if (respone.isEmpty()) {
-		// Empty response as WRONG
-		ui->lbl_origin->setText("<Empty>");
+		// empty response as WRONG
+		ui->lbl_origin->setText("<b>Empty</b>");
 		QSound::play(":/incorrect.wav");
 	}
-	else if (ui->te_sentence->toPlainText().trimmed() == this->quiz_sent) {
+	else if (ui->te_sentence->toPlainText().trimmed() == this->quiz_sentence) {
 		ui->lbl_origin->setText("<b>Right!</b>");
 		this->lbl_status->setText("<font color=\"green\">OK.\t</font>");
 		this->right_sent_complete++;
 		QSound::play(":/correct.wav");
-		if (sentence_right_table.contains(this->quiz_sent)) {
-			sentence_right_table[this->quiz_sent]++;
-		}
-		else {
-			sentence_right_table[this->quiz_sent] = 1;
-		}
+		// update learned times
+		this->quiz_sentence_learned_times++;
+		update_learned_times_into_db(this->quiz_sentence.toLower(), this->quiz_sentence_learned_times);
 	}
 	else {
 		int k;
 		for (k = 0; k < respone.count(); k++) {
-			if (respone.at(k) != this->quiz_sent.at(k))break;
+			if (respone.at(k) != this->quiz_sentence.at(k))break;
 		}
 		this->lbl_status->setText("<font color=\"red\">Wrong.\t</font>");
 		ui->lbl_origin->setText(tr("<font color=\"green\">Respon:</font> %1<font color=\"red\">%2</font>")
@@ -1108,8 +1195,8 @@ void MainWindow::on_btn_ok_clicked()
 		.arg(this->sent_complete)
 		.arg(100 * this->right_sent_complete / this->sent_complete)
 		.arg((int)((alpha * this->sent_complete - this->right_sent_complete) / (1 - alpha))));
-	ui->lbl_sent->setText("<font color=\"green\">Origin:</font> " + this->quiz_sent);
-	ui->lbl_trans->setText("<font color=\"blue\">Transl:</font> " + this->quiz_trans);
+	ui->lbl_sent->setText("<font color=\"green\">Origin:</font> " + this->quiz_sentence);
+	ui->lbl_trans->setText("<font color=\"blue\">Transl:</font> " + this->quiz_translation);
 
 	single_sentence_complete_quiz();
 }
@@ -1120,6 +1207,7 @@ void MainWindow::on_lst_words_itemClicked(QListWidgetItem* item)
 	QString cur_word = item->text();
 	item->setText(tr("*%1").arg(cur_word));
 	this->lbl_status->setText(tr("You chose %1.\t").arg(cur_word));
+	//update_words_hint(cur_word);
 
 	// Choose colors, ref here: https://blog.csdn.net/daichanglin/article/details/1563299
 	// Colorful apperance may reduce the pressure of studying.
@@ -1197,14 +1285,14 @@ void MainWindow::on_lst_words_itemClicked(QListWidgetItem* item)
 	ui->te_sentence->insertHtml(tr("<span style=\"background-color: %1\">%2</span>")
 		.arg(colors.at(ch))
 		.arg(cur_word) + " ");
-	if (ui->te_sentence->toPlainText().trimmed() == this->quiz_sent) {
+	if (ui->te_sentence->toPlainText().trimmed() == this->quiz_sentence) {
 		on_btn_ok_clicked();
 	}
 }
 
 void MainWindow::on_btn_play_clicked()
 {
-	this->speech->say(this->quiz_sent);
+	this->speech->say(this->quiz_sentence);
 }
 
 void MainWindow::on_clear_complete_operation()
@@ -1250,21 +1338,27 @@ void MainWindow::on_chk_show_pronoms_stateChanged(int)
 void MainWindow::update_translation(QString translation)
 {
 	QJsonDocument doc = QJsonDocument::fromJson(translation.toLocal8Bit().data());
-	QJsonObject obj = doc.object();
-	QJsonArray arr = obj.take("text").toArray();
-	// Check if response empty
-	if (arr.isEmpty()) {
-		this->quiz_trans = "<No translation>";
+	if (!doc.isEmpty()) {
+		//qDebug() << doc;
+		QJsonObject obj = doc.object();
+		if (!obj.isEmpty()) {
+			//qDebug() << obj;
+			QJsonArray arr = obj.take("text").toArray();
+			if (!arr.isEmpty()) {
+				this->quiz_translation = arr.toVariantList().at(0).toString();
+				this->lbl_network->setText("Fetched OK.\t");
+			}
+		}
+	}else{
+		this->quiz_translation = "<No translation>";
 		this->lbl_network->setText("Cannot translate.\t");
 	}
-	else {
-		this->quiz_trans = arr.toVariantList().at(0).toString();
-		this->lbl_network->setText("Fetched OK.\t");
-	}
 	ui->btn_ok->setEnabled(true);
-	ui->lbl_trans->setToolTip(this->quiz_trans);
+	ui->lbl_trans->setText("<font color=\"blue\">Transl:</font> " + this->quiz_translation);
 	emit close_translation_safely();
 	unsync_conj->deleteLater();
+
+	qDebug() << "update translation OK: "<< this->quiz_translation;
 }
 
 void MainWindow::on_tabWidget_currentChanged(int index)
