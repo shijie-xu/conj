@@ -76,6 +76,7 @@ public:
     QWidget *tab_4;
     QHBoxLayout *horizontalLayout_14;
     QVBoxLayout *verticalLayout_8;
+    QLabel *lbl_cs_percent;
     QHBoxLayout *horizontalLayout_13;
     QListWidget *lst_words;
     QVBoxLayout *verticalLayout_7;
@@ -115,7 +116,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(442, 301);
+        MainWindow->resize(434, 315);
         actionSettings_S = new QAction(MainWindow);
         actionSettings_S->setObjectName(QString::fromUtf8("actionSettings_S"));
         actionExit_X = new QAction(MainWindow);
@@ -317,6 +318,11 @@ public:
         horizontalLayout_14->setObjectName(QString::fromUtf8("horizontalLayout_14"));
         verticalLayout_8 = new QVBoxLayout();
         verticalLayout_8->setObjectName(QString::fromUtf8("verticalLayout_8"));
+        lbl_cs_percent = new QLabel(tab_4);
+        lbl_cs_percent->setObjectName(QString::fromUtf8("lbl_cs_percent"));
+
+        verticalLayout_8->addWidget(lbl_cs_percent);
+
         horizontalLayout_13 = new QHBoxLayout();
         horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
         lst_words = new QListWidget(tab_4);
@@ -631,7 +637,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 442, 18));
+        menubar->setGeometry(QRect(0, 0, 434, 18));
         menuFile_F = new QMenu(menubar);
         menuFile_F->setObjectName(QString::fromUtf8("menuFile_F"));
         menuHelp_H = new QMenu(menubar);
@@ -679,6 +685,7 @@ public:
         chk_show_pronoms->setText(QCoreApplication::translate("MainWindow", "Show/Hide Pronoms Table", nullptr));
         lbl_pronom_pos->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QCoreApplication::translate("MainWindow", "Pronom", nullptr));
+        lbl_cs_percent->setText(QCoreApplication::translate("MainWindow", ">>", nullptr));
         lbl_hint->setText(QCoreApplication::translate("MainWindow", "No hint", nullptr));
         lbl_words->setText(QCoreApplication::translate("MainWindow", "Complete", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "Avg freqency of words", nullptr));

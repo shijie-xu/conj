@@ -109,8 +109,11 @@ MainWindow::MainWindow(QWidget* parent)
 	connect(sc_hide, SIGNAL(activated()), this, SLOT(on_hide_window()));
 	QShortcut* sc_clear = new QShortcut(QKeySequence("Q"), this);
 	connect(sc_clear, SIGNAL(activated()), this, SLOT(on_clear_complete_operation()));
-	QShortcut* sc_check = new QShortcut(QKeySequence("W"), this);
-	connect(sc_check, SIGNAL(activated()), this, SLOT(on_btn_ok_clicked()));
+
+	// To use following shortcuts, you are supposed to block the syncling state
+	// and the codes are invalid now
+	//QShortcut* sc_check = new QShortcut(QKeySequence("W"), this);
+	//connect(sc_check, SIGNAL(activated()), this, SLOT(on_btn_ok_clicked()));
 
 	// Load words file
 	QFile src(words_file_path);
@@ -609,6 +612,32 @@ void MainWindow::update_words_hint(QString word)
 	}
 }
 
+void MainWindow::update_complete_percent()
+{
+	QSqlQuery query;
+	int total_length = 80.0, sentence_1_level = 1, sentence_2_level = 1, sentence_3_level = 1;
+
+	query.exec(tr("SELECT count(sentence) FROM sentence_times where times == 1;"));
+	if (query.next()) sentence_1_level = query.value(0).toInt();
+	query.exec(tr("SELECT count(sentence) FROM sentence_times where times == 2;"));
+	if (query.next()) sentence_2_level = query.value(0).toInt();
+	query.exec(tr("SELECT count(sentence) FROM sentence_times where times >= 3;"));
+	if (query.next()) sentence_3_level = query.value(0).toInt();
+
+	QString text1;
+	text1.fill('>', (int)(total_length * sentence_1_level / (sentence_1_level + sentence_2_level + sentence_3_level)));
+	QString text2;
+	text2.fill('>', (int)(total_length * sentence_2_level / (sentence_1_level + sentence_2_level + sentence_3_level)));
+	QString text3;
+	text3.fill('>', (int)(total_length * sentence_3_level / (sentence_1_level + sentence_2_level + sentence_3_level)));
+
+	ui->lbl_cs_percent->setText(
+		tr("<b>%1<font color=\"#00ff00\">%2</font><font color=\"#0000ff\">%3</font></b>")
+		.arg(text1)
+		.arg(text2)
+		.arg(text3));
+}
+
 void MainWindow::closeEvent(QCloseEvent*)
 {
 	// Set mainwindow position and size
@@ -1068,6 +1097,8 @@ void MainWindow::on_le_pronom_returnPressed()
 
 void MainWindow::single_sentence_complete_quiz()
 {
+	update_complete_percent();
+
 	int min_length = ui->spin_min->value();
 	int max_length = ui->spin_max->value();
 	int avg_freq = ui->spin_freq->value();
@@ -1126,7 +1157,11 @@ void MainWindow::single_sentence_complete_quiz()
 
 	// Set unsync get
 	// Quit the last thread right now
-	if (thrd && thrd->isRunning())thrd->exit();
+	if (thrd) {
+		thrd->quit();
+		thrd->wait();
+		delete unsync_conj;
+	}
 
 	thrd = new QThread();
 
@@ -1136,7 +1171,6 @@ void MainWindow::single_sentence_complete_quiz()
 
 	connect(thrd, &QThread::started,
 		unsync_conj, &Conjugate::doWork);
-	//connect(unsync_conj, &Conjugate::finishedWork, thrd, &QThread::quit);
 	connect(unsync_conj, &Conjugate::TranslationComplete, this, &MainWindow::update_translation);
 	connect(this, &MainWindow::close_translation_safely, thrd, &QThread::quit);
 
@@ -1147,6 +1181,7 @@ void MainWindow::single_sentence_complete_quiz()
 // Check correction of sentences
 void MainWindow::on_btn_ok_clicked()
 {
+	//if (!ui->btn_ok->isEnabled()) return;
 	this->sent_complete++;
 	QString respone = ui->te_sentence->toPlainText();
 	ui->lbl_sent->clear();
@@ -1345,7 +1380,6 @@ void MainWindow::update_translation(QString translation)
 	ui->btn_ok->setEnabled(true);
 	ui->lbl_trans->setText("<font color=\"blue\">Transl:</font> " + this->quiz_translation);
 	emit close_translation_safely();
-	unsync_conj->deleteLater();
 
 	qDebug() << "update translation OK: "<< this->quiz_translation;
 }
@@ -1371,3 +1405,4 @@ void MainWindow::on_btn_clear_clicked()
 {
 	on_clear_complete_operation();
 }
+

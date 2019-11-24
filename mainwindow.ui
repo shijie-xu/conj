@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>442</width>
-    <height>301</height>
+    <width>434</width>
+    <height>315</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -243,6 +243,13 @@ QListWidget::item:selected {
        <layout class="QHBoxLayout" name="horizontalLayout_14">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <widget class="QLabel" name="lbl_cs_percent">
+            <property name="text">
+             <string>&gt;&gt;</string>
+            </property>
+           </widget>
+          </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_13">
             <item>
@@ -683,7 +690,7 @@ QPushButton#btn_clear:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>442</width>
+     <width>434</width>
      <height>18</height>
     </rect>
    </property>

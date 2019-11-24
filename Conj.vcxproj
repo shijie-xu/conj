@@ -56,7 +56,7 @@
   </ImportGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtInstall>msvc2017_64</QtInstall>
-    <QtModules>core;sql;network;gui;widgets;charts;texttospeech</QtModules>
+    <QtModules>core;sql;network;gui;widgets;charts;texttospeech;webenginewidgets;multimedia</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QtInstall>msvc2017_64</QtInstall>

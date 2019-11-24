@@ -55,6 +55,7 @@ public:
 	QString read_word_description_from_db(QString word);
 	void update_words_dictionary_into_db(QString word, QString description);
 	void update_words_hint(QString word);
+	void update_complete_percent();
 
 protected:
 	void closeEvent(QCloseEvent* event);
