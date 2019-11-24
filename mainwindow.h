@@ -39,7 +39,6 @@ public:
 	// Update tabs
 	void update_tab_conj_history();
 	void update_tab_sentence_complete_history();
-	void update_tab_sentence_complete_history_by_day();
 
 	// Auxiliary functions
 	QMap<QString, double> map_from_variant(QVariantMap);

@@ -205,7 +205,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 	// Update tabs
 	update_tab_conj_history();
-	update_tab_sentence_complete_history_by_day();
+	update_tab_sentence_complete_history();
 
 	// Set tab4
 	ui->te_sentence->setReadOnly(true);
@@ -380,23 +380,12 @@ void MainWindow::update_tab_conj_history()
 
 void MainWindow::update_tab_sentence_complete_history()
 {
-
-}
-
-void MainWindow::update_tab_sentence_complete_history_by_day()
-{
 	// Connect to the database
 	QSqlQuery query;
-	if (!query.exec("create table completeHistory(date text primary key, requests int)")) {
-		qDebug() << query.lastError();
-	}
 
 	// Query records;
-	QString today = QLocale("en_US").toDate(QString(__DATE__).simplified(), tr("MMM d yyyy")).toString("yyyy-MM-d");
-	query.exec(tr("select * from completeHistory where date=\"%1\"").arg(today));
-	if (query.next()) this->exsisted_queries_cout = query.value(1).toInt();
 	QBarSeries* series = new QBarSeries();
-	query.exec("select * from completeHistory");
+	query.exec("select * from sentences_complete_records");
 	while (query.next()) {
 		QString date = query.value(0).toString();
 		QBarSet* hist_set = new QBarSet(date);
@@ -1089,7 +1078,6 @@ void MainWindow::single_sentence_complete_quiz()
 	int loops = 0;
 	do {
 		loops++;
-		//qDebug() << loops;
 
 		//int k = QRandomGenerator::global()->bounded(this->sent_list.count());
 		int k = rand() % (this->sentence_list.count());
@@ -1127,6 +1115,7 @@ void MainWindow::single_sentence_complete_quiz()
 			}
 		}
 	} while (!succ);
+	qDebug() << "loops: " << loops;
 
 	// Translate
 	// Install openssl dll firstly: http://slproweb.com/products/Win32OpenSSL.html
@@ -1365,7 +1354,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 {
 	if (index == 4) {
 		// Update sentence complete tabs
-		update_tab_sentence_complete_history();
+		//update_tab_sentence_complete_history();
 	}
 }
 
