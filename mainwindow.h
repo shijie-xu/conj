@@ -56,6 +56,8 @@ public:
 	void update_words_dictionary_into_db(QString word, QString description);
 	void update_words_hint(QString word);
 	void update_complete_percent();
+	void update_everyday_learning();
+	void read_today_learning_sentences();
 
 protected:
 	void closeEvent(QCloseEvent* event);
@@ -202,6 +204,7 @@ private:
 	QThread* thrd;
 	int exsisted_queries_cout;
 	int cur_queries_count;
+	int today_learning_sentences;
 
 	QSqlDatabase db;
 };

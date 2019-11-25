@@ -209,6 +209,7 @@ MainWindow::MainWindow(QWidget* parent)
 	// Update tabs
 	update_tab_conj_history();
 	update_tab_sentence_complete_history();
+	read_today_learning_sentences();
 
 	// Set tab4
 	ui->te_sentence->setReadOnly(true);
@@ -632,10 +633,34 @@ void MainWindow::update_complete_percent()
 	text3.fill('>', (int)(total_length * sentence_3_level / (sentence_1_level + sentence_2_level + sentence_3_level)));
 
 	ui->lbl_cs_percent->setText(
-		tr("<b>%1<font color=\"#00ff00\">%2</font><font color=\"#0000ff\">%3</font></b>")
+		tr("<b><font color=\"#0000ff\">%3</font><font color=\"#00ff00\">%2</font>%1</b>")
 		.arg(text1)
 		.arg(text2)
 		.arg(text3));
+}
+
+void MainWindow::update_everyday_learning()
+{
+	QSqlQuery query;
+	QString today = this_day();
+	// try to insert
+	query.exec(tr("insert into sentences_complete_records values(\"%1\",%2)")
+		.arg(today)
+		.arg(this->today_learning_sentences));
+	// update
+	query.exec(tr("update sentences_complete_records set times = %1 where date = \"%2\"")
+		.arg(this->today_learning_sentences)
+		.arg(today));
+}
+
+void MainWindow::read_today_learning_sentences()
+{
+	QSqlQuery query;
+	QString today = this_day();
+	query.exec(tr("select * from sentences_complete_records where date = \"%1\"").arg(today));
+	if (query.next()) this->today_learning_sentences = query.value(1).toInt();
+	else this->today_learning_sentences = 0;
+	//qDebug() << query.value(0).toInt();
 }
 
 void MainWindow::closeEvent(QCloseEvent*)
@@ -652,18 +677,6 @@ void MainWindow::closeEvent(QCloseEvent*)
 	settings->setValue("sentence complete", QVariant(this->sent_complete).toInt());
 	settings->setValue("right sentence complete", QVariant(this->right_sent_complete).toInt());
 
-	// update database
-	//QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-	//db.setDatabaseName("history.db");
-	//if (!db.open()) qDebug() << db.lastError();
-	QSqlQuery query;
-	QString today = this_day();
-	query.exec(tr("insert into completeHistory values(\"%1\",%2)")
-		.arg(today)
-		.arg(this->exsisted_queries_cout + this->cur_queries_count));
-	query.exec(tr("update completeHistory set requests = %1 where date = \"%2\"")
-		.arg(this->exsisted_queries_cout + this->cur_queries_count)
-		.arg(today));
 	// close db when quit
 	db.close();
 }
@@ -1199,6 +1212,9 @@ void MainWindow::on_btn_ok_clicked()
 		// update learned times
 		this->quiz_sentence_learned_times++;
 		update_learned_times_into_db(this->quiz_sentence.toLower(), this->quiz_sentence_learned_times);
+		// update sentences count of today's learning
+		this->today_learning_sentences++;
+		update_everyday_learning();
 	}
 	else {
 		int k;
