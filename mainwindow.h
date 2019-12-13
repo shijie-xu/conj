@@ -18,6 +18,7 @@
 #include <QTextToSpeech>
 #include <QVoice>
 #include <QSqlDatabase>
+#include <QWord.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -207,6 +208,8 @@ private:
 	int today_learning_sentences;
 
 	QSqlDatabase db;
+
+	QSentence sentence_parse;
 };
 
 #endif // MAINWINDOW_H

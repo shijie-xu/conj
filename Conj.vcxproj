@@ -76,9 +76,12 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Conj</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Python27\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtCharts;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtWidgets;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtGui;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtANGLE;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtNetwork;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtTextToSpeech;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtSql;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtCore;release;/include;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Shijie Xu\.conda\envs\python36\include;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtCharts;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtWidgets;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtGui;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtANGLE;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtNetwork;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtTextToSpeech;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtSql;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\include\QtCore;release;/include;..\..\..\..\QT\QT5.13.1\5.13.1\MSVC2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -98,8 +101,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\openssl\lib;C:\Utils\my_sql\mysql-5.7.25-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>shell32.lib;python36.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Shijie Xu\.conda\envs\python36\libs;C:\openssl\lib;C:\Utils\my_sql\mysql-5.7.25-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -159,8 +162,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\openssl\lib;C:\Utils\my_sql\mysql-5.7.25-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>shell32.lib;python27.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Python27\libs;C:\openssl\lib;C:\Utils\my_sql\mysql-5.7.25-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -203,6 +206,7 @@
     <ClCompile Include="conjugate.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
+    <ClCompile Include="QWord.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="conjugate.h">
@@ -237,6 +241,7 @@
     </QtRcc>
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="QWord.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="resource1.h" />
   </ItemGroup>

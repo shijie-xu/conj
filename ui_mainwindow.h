@@ -107,6 +107,7 @@ public:
     QWidget *tab_6;
     QHBoxLayout *horizontalLayout_16;
     QHBoxLayout *hb_history;
+    QWidget *tab_complete_stem;
     QMenuBar *menubar;
     QMenu *menuFile_F;
     QMenu *menuHelp_H;
@@ -631,6 +632,9 @@ public:
         horizontalLayout_16->addLayout(hb_history);
 
         tabWidget->addTab(tab_6, QString());
+        tab_complete_stem = new QWidget();
+        tab_complete_stem->setObjectName(QString::fromUtf8("tab_complete_stem"));
+        tabWidget->addTab(tab_complete_stem, QString());
 
         verticalLayout->addWidget(tabWidget);
 
@@ -658,7 +662,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tabWidget->setCurrentIndex(4);
+        tabWidget->setCurrentIndex(6);
         btn_ok->setDefault(false);
 
 
@@ -698,8 +702,9 @@ public:
         lbl_origin->setText(QString());
         lbl_sent->setText(QString());
         lbl_trans->setText(QString());
-        tabWidget->setTabText(tabWidget->indexOf(tab_4), QCoreApplication::translate("MainWindow", "Complete", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tab_4), QCoreApplication::translate("MainWindow", "Complete-1", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_6), QCoreApplication::translate("MainWindow", "History", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tab_complete_stem), QCoreApplication::translate("MainWindow", "Complete-2", nullptr));
         menuFile_F->setTitle(QCoreApplication::translate("MainWindow", "File(&F)", nullptr));
         menuHelp_H->setTitle(QCoreApplication::translate("MainWindow", "Help(&H)", nullptr));
     } // retranslateUi

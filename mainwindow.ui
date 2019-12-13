@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>4</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -238,7 +238,7 @@ QListWidget::item:selected {
       </widget>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
-        <string>Complete</string>
+        <string>Complete-1</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_14">
         <item>
@@ -680,6 +680,11 @@ QPushButton#btn_clear:pressed {
          <layout class="QHBoxLayout" name="hb_history"/>
         </item>
        </layout>
+      </widget>
+      <widget class="QWidget" name="tab_complete_stem">
+       <attribute name="title">
+        <string>Complete-2</string>
+       </attribute>
       </widget>
      </widget>
     </item>

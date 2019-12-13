@@ -51,6 +51,8 @@
 #include <QtMultimedia/QSound>
 #include <QDate>
 #include <QDateTime>
+#include <QWord.h>
+
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -216,6 +218,10 @@ MainWindow::MainWindow(QWidget* parent)
 
 	// File must be saved in `UTF-8 with BOM` format
 	// Calculate word frequency
+	// Initialized Python engine
+	//this->sentence_parse = QSentence();
+	//sentence_parse.init_pyengine();
+
 	double alpha = 0.8;
 	ui->lbl_words->setText(tr("Complete (<font color=\"blue\">%1</font>/%2/%3%/%4)")
 		.arg(this->right_sent_complete)
@@ -235,6 +241,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+	//this->sentence_parse.exit_pyengine();
 	delete ui;
 }
 
@@ -616,7 +623,7 @@ void MainWindow::update_words_hint(QString word)
 void MainWindow::update_complete_percent()
 {
 	QSqlQuery query;
-	int total_length = 80.0, sentence_1_level = 1, sentence_2_level = 1, sentence_3_level = 1;
+	int total_length = 60.0, sentence_1_level = 1, sentence_2_level = 1, sentence_3_level = 1;
 
 	query.exec(tr("SELECT count(sentence) FROM sentence_times where times == 1;"));
 	if (query.next()) sentence_1_level = query.value(0).toInt();
@@ -625,6 +632,7 @@ void MainWindow::update_complete_percent()
 	query.exec(tr("SELECT count(sentence) FROM sentence_times where times >= 3;"));
 	if (query.next()) sentence_3_level = query.value(0).toInt();
 
+	// figure out
 	QString text1;
 	text1.fill('>', (int)(total_length * sentence_1_level / (sentence_1_level + sentence_2_level + sentence_3_level)));
 	QString text2;
@@ -633,10 +641,13 @@ void MainWindow::update_complete_percent()
 	text3.fill('>', (int)(total_length * sentence_3_level / (sentence_1_level + sentence_2_level + sentence_3_level)));
 
 	ui->lbl_cs_percent->setText(
-		tr("<b><font color=\"#0000ff\">%3</font><font color=\"#00ff00\">%2</font>%1</b>")
+		tr("<b><font color=\"#0000ff\">%3%4</font><font color=\"#00ff00\">%2%5</font>%1%6</b>")
 		.arg(text1)
 		.arg(text2)
-		.arg(text3));
+		.arg(text3)
+		.arg(sentence_3_level)
+		.arg(sentence_2_level)
+		.arg(sentence_1_level));
 }
 
 void MainWindow::update_everyday_learning()
@@ -984,8 +995,9 @@ void MainWindow::on_actionAbout_A_triggered()
 		"Thanks to <a href=\"http://verbe.cc\">http://verbe.cc</a> for providing verbs conjugation interface,"
 		" to <a href=\"https://tech.yandex.com/translate/\">Yandex translate</a> for the translation api,"
 		" and to <a href=\"https://en.wiktionary.org/wiki/Category:French_irregular_verbs\">Wikitionary</a>"
-		" for providing irregular verbs list. See more details "
-		"<a href=\"https://en.wiktionary.org/wiki/Appendix:French_irregular_verbs\">here.</a><br>"
+		" for providing irregular verbs list. Some of exercise text are downloaded from "
+		"<a href=\"https://b-ok.org/\">ZLibrary</a>. "
+		"See more details <a href=\"https://en.wiktionary.org/wiki/Appendix:French_irregular_verbs\">here.</a><br>"
 		+ tr("Built with Qt %1 on %2.").arg(QT_VERSION_STR).arg(compiled_day()),
 		QMessageBox::Yes, QMessageBox::Yes);
 }
@@ -1110,6 +1122,7 @@ void MainWindow::on_le_pronom_returnPressed()
 
 void MainWindow::single_sentence_complete_quiz()
 {
+	qDebug() << "new sentence complete quiz begins";
 	update_complete_percent();
 
 	int min_length = ui->spin_min->value();
@@ -1122,6 +1135,7 @@ void MainWindow::single_sentence_complete_quiz()
 	int loops = 0;
 	do {
 		loops++;
+		if (loops > 100) this->lbl_status->setText("Loops too large, please increase threshold!");
 
 		//int k = QRandomGenerator::global()->bounded(this->sent_list.count());
 		int k = rand() % (this->sentence_list.count());
@@ -1150,14 +1164,28 @@ void MainWindow::single_sentence_complete_quiz()
 		//std::random_shuffle(words_ref.begin(), words_ref.end());
 		std::random_shuffle(words.begin(), words.end());
 
+		// Parse sentence constructure
+		//qDebug() << "split sentence";
+		//sentence_parse.set_setence(this->quiz_sentence);
+		//QList<QString> split_sentence = sentence_parse.py_fold_sentence();
+		//qDebug() << split_sentence << "\nsplit ok.";
+
 		// Show words in list view
+		
 		for (int i = 0; i < words.count(); ++i) {
 			QString w = words.at(i);
 			if (!w.isEmpty()) {
 				ui->lst_words->addItem(words.at(i));
 				succ = true;
 			}
-		}
+		}/*
+		for (int i = 0; i < split_sentence.count(); ++i) {
+			QString w = split_sentence.at(i).trimmed();
+			if (!w.isEmpty()) {
+				ui->lst_words->addItem(split_sentence.at(i).toLocal8Bit());
+				succ = true;
+			}
+		}*/
 	} while (!succ);
 	qDebug() << "loops: " << loops;
 
@@ -1390,8 +1418,8 @@ void MainWindow::update_translation(QString translation)
 			}
 		}
 	}else{
-		this->quiz_translation = "<No translation>";
-		this->lbl_network->setText("Cannot translate.\t");
+		this->quiz_translation = "<no translation>";
+		this->lbl_network->setText("cannot translate.\t");
 	}
 	ui->btn_ok->setEnabled(true);
 	ui->lbl_trans->setText("<font color=\"blue\">Transl:</font> " + this->quiz_translation);
